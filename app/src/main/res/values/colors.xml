@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Cores Principais do habitsCare -->
+    <color name="bg_app">#E8F5E9</color>
+    <color name="bg_card">#FFFFFF</color>
+    <color name="bg_input">#F1F8E9</color>
+    <color name="border_input">#E0E0E0</color>
+
+    <color name="brand_green_primary">#00796B</color>
+    <color name="brand_green_dark">#004D40</color>
+    <color name="brand_green_leaf">#81C784</color>
+
+    <color name="text_primary">#424242</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#9E9E9E</color>
+    <color name="white">#FFFFFF</color>
+</resources>

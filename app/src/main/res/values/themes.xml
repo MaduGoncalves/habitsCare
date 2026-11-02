@@ -1,0 +1,15 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Tema principal da aplicação -->
+    <style name="Theme.HabitsCare" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_green_primary</item>
+        <item name="colorPrimaryVariant">@color/brand_green_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+    </style>
+
+    <!-- Tema exclusivo para a Splash Screen -->
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/bg_app</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_leaf</item>
+        <item name="postSplashScreenTheme">@style/Theme.HabitsCare</item>
+    </style>
+</resources>
