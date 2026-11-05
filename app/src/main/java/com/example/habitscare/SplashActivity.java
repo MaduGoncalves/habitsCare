@@ -1,34 +1,45 @@
 package com.example.habitscare;
 
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.splashscreen.SplashScreen;
 
 public class SplashActivity extends AppCompatActivity {
 
+    private boolean isDataReady = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Instala a Splash Screen oficial
+        // 1. Instala a Splash Screen oficial
         SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
 
-        // Verifica se o utilizador já está autenticado
-        SharedPreferences preferences = getSharedPreferences("user_session", MODE_PRIVATE);
-        boolean isLoggedIn = preferences.getBoolean("is_logged_in", false);
+        // 2. Mantém a Splash Screen visível na tela até que 'isDataReady' seja true
+        splashScreen.setKeepOnScreenCondition(() -> !isDataReady);
 
-        Intent intent;
-        if (isLoggedIn) {
-            // Se já fez login, vai direto para a área restrita
-            intent = new Intent(SplashActivity.this, MainActivity.class);
-        } else {
-            // Se não fez login, vai para a tela de autenticação
-            intent = new Intent(SplashActivity.this, LoginActivity.class);
-        }
+        // 3. Simula a verificação ou carregamento de dados (ex: 2 segundos)
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            // Verifica a sessão do utilizador
+            SharedPreferences preferences = getSharedPreferences("user_session", MODE_PRIVATE);
+            boolean isLoggedIn = preferences.getBoolean("is_logged_in", false);
 
-        startActivity(intent);
-        finish(); // Remove a SplashActivity da pilha de navegação
+            Intent intent;
+            if (isLoggedIn) {
+                intent = new Intent(SplashActivity.this, MainActivity.class);
+            } else {
+                intent = new Intent(SplashActivity.this, LoginActivity.class);
+            }
+
+            startActivity(intent);
+            finish();
+
+            // Liberta a Splash Screen para concluir a transição
+            isDataReady = true;
+        }, 500); // 2000 milissegundos = 2 segundos
     }
 }

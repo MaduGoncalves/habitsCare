@@ -9,7 +9,9 @@
     <!-- Tema exclusivo para a Splash Screen -->
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/bg_app</item>
+
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_leaf</item>
+
         <item name="postSplashScreenTheme">@style/Theme.HabitsCare</item>
     </style>
 </resources>
