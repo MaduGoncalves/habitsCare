@@ -7,11 +7,22 @@
     <string name="hint_senha">Senha</string>
     <string name="btn_login">Entrar</string>
     <string name="btn_continue_without_login">Continuar sem login</string>
-    <string name="prototype_notice">Protótipo — qualquer e-mail e senha funcionam.</string>
     <string name="toast_fill_fields">Preencha e-mail e senha para entrar</string>
 
     <!-- Tela Sobre (AboutActivity) -->
     <string name="about_title">Sobre o habitsCare</string>
     <string name="about_description">O habitsCare é uma plataforma projetada para ajudar você a criar e manter rotinas saudáveis. Acreditamos que pequenos hábitos diários levam a grandes transformações a longo prazo.\n\nPara ter acesso às funcionalidades de rastreamento de hábitos, relatórios de progresso e personalização de metas, é necessário realizar o login na tela inicial.</string>
     <string name="btn_back_to_login">Fazer Login para Acessar</string>
+
+    <!-- Funcionalidades dos Cards (Novas Strings) -->
+    <string name="about_section_features">O que você pode acompanhar:</string>
+
+    <string name="feature_water_title">Hidratação Diária</string>
+    <string name="feature_water_desc">Registre seu consumo de água e mantenha metas diárias personalizadas.</string>
+
+    <string name="feature_sleep_title">Qualidade do Sono</string>
+    <string name="feature_sleep_desc">Monitore suas horas de descanso para entender seu ciclo de sono.</string>
+
+    <string name="feature_walk_title">Atividade Física</string>
+    <string name="feature_walk_desc">Acompanhe suas caminhadas e mantenha seu corpo em movimento.</string>
 </resources>

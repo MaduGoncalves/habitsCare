@@ -47,4 +47,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(libs.ext.junit)
+    // BCrypt para segurança de senhas
+    implementation("at.favre.lib:bcrypt:0.10.2")
 }
