@@ -16,4 +16,45 @@ public class Walk {
     private int idUsuario;
     private double km;
     private String dia;
+    public Walk() {
+    }
+    public Walk(int idUsuario, double km, String dia) {
+        this.idUsuario = idUsuario;
+        this.km = km;
+        this.dia = dia;
+    }
+
+    // Getters e Setters
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getIdUsuario() {
+        return idUsuario;
+    }
+
+    public void setIdUsuario(int idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
+    public double getKm() {
+        return km;
+    }
+
+    public void setKm(double km) {
+        this.km = km;
+    }
+
+    public String getDia() {
+        return dia;
+    }
+
+    public void setDia(String dia) {
+        this.dia = dia;
+    }
 }

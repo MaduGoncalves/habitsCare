@@ -19,4 +19,57 @@ public class Sleep {
     private String horarioDormir;
     private String horarioAcordar;
     private String dia;
+    // Construtor Vazio (Exigido pelo Room)
+    public Sleep() {
+    }
+
+    // Construtor com Parâmetros
+    public Sleep(int idUsuario, String horarioDormir, String horarioAcordar, String dia) {
+        this.idUsuario = idUsuario;
+        this.horarioDormir = horarioDormir;
+        this.horarioAcordar = horarioAcordar;
+        this.dia = dia;
+    }
+
+    // Getters e Setters
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getIdUsuario() {
+        return idUsuario;
+    }
+
+    public void setIdUsuario(int idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
+    public String getHorarioDormir() {
+        return horarioDormir;
+    }
+
+    public void setHorarioDormir(String horarioDormir) {
+        this.horarioDormir = horarioDormir;
+    }
+
+    public String getHorarioAcordar() {
+        return horarioAcordar;
+    }
+
+    public void setHorarioAcordar(String horarioAcordar) {
+        this.horarioAcordar = horarioAcordar;
+    }
+
+    public String getDia() {
+        return dia;
+    }
+
+    public void setDia(String dia) {
+        this.dia = dia;
+    }
 }

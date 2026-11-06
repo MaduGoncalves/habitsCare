@@ -25,4 +25,7 @@
 
     <string name="feature_walk_title">Atividade Física</string>
     <string name="feature_walk_desc">Acompanhe suas caminhadas e mantenha seu corpo em movimento.</string>
+
+    <string name="titulo_editar">Editar Perfil</string>
+    <string name="btn_salvar_alteracoes">Salvar Alterações</string>
 </resources>
