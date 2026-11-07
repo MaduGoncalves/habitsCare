@@ -15,7 +15,9 @@ import com.example.habitscare.model.User;
 import com.example.habitscare.model.Walk;
 import com.example.habitscare.model.Water;
 
-@Database(entities = {User.class, Water.class, Sleep.class, Walk.class}, version = 1)
+// version = 2: as models Water, Walk e Sleep mudaram, então o schema mudou.
+// Sempre que alterar uma model, aumente este número.
+@Database(entities = {User.class, Water.class, Sleep.class, Walk.class}, version = 3)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract UserDao userDao();
@@ -30,10 +32,12 @@ public abstract class AppDatabase extends RoomDatabase {
             synchronized (AppDatabase.class) {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(
-                            context.getApplicationContext(),
-                            AppDatabase.class,
-                            "habits_care_db"
-                    ).build();
+                                    context.getApplicationContext(),
+                                    AppDatabase.class,
+                                    "habits_care_db"
+                            )
+                            .fallbackToDestructiveMigration() // Limpa e recria o banco se mudar a versão sem migrations
+                            .build();
                 }
             }
         }

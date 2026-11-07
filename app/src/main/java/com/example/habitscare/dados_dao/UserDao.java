@@ -13,7 +13,6 @@ import java.util.List;
 
 @Dao
 public interface UserDao {
-
     @Query("SELECT * FROM users WHERE id = :id LIMIT 1")
     User buscarPorId(int id);
 

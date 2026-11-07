@@ -1,5 +1,6 @@
 package com.example.habitscare;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -27,8 +28,7 @@ public class LoginFragment extends Fragment {
 
     private AppDatabase db;
 
-    private final ExecutorService executor =
-            Executors.newSingleThreadExecutor();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Nullable
     @Override
@@ -37,18 +37,11 @@ public class LoginFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState
     ) {
-        return inflater.inflate(
-                R.layout.fragment_login,
-                container,
-                false
-        );
+        return inflater.inflate(R.layout.fragment_login, container, false);
     }
 
     @Override
-    public void onViewCreated(
-            @NonNull View view,
-            @Nullable Bundle savedInstanceState
-    ) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         editEmail = view.findViewById(R.id.editEmail);
@@ -59,80 +52,37 @@ public class LoginFragment extends Fragment {
         db = AppDatabase.get(requireContext());
 
         // Botão de cadastro
-        buttonCadastro.setOnClickListener(v -> {
-
-            Intent intent = new Intent(
-                    requireContext(),
-                    CadastroActivity.class
-            );
-
-            startActivity(intent);
-        });
+        buttonCadastro.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), CadastroActivity.class)));
 
         // Botão de login
         buttonLogin.setOnClickListener(v -> realizarLogin());
+
+        // "Seguir sem login": sem estar logado, só a tela "Sobre o projeto" fica disponível
+        view.findViewById(R.id.textSeguirSemLogin).setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), AboutProjectActivity.class)));
     }
 
     private void realizarLogin() {
-
-        String email = editEmail.getText()
-                .toString()
-                .trim();
-
-        String senhaDigitada = editSenha.getText()
-                .toString()
-                .trim();
+        String email = editEmail.getText().toString().trim();
+        String senhaDigitada = editSenha.getText().toString().trim();
 
         // Validação dos campos
         if (email.isEmpty() || senhaDigitada.isEmpty()) {
-
-            Toast.makeText(
-                    requireContext(),
-                    "Preencha todos os campos",
-                    Toast.LENGTH_SHORT
-            ).show();
-
+            Toast.makeText(requireContext(), "Preencha todos os campos", Toast.LENGTH_SHORT).show();
             return;
         }
-
-        // Criptografa a senha digitada para comparar
-        // com a senha armazenada no banco
-        String senhaCriptografada =
-                SecurityUtils.hashSenha(senhaDigitada);
 
         // Operação do banco em uma thread separada
         executor.execute(() -> {
 
             // Busca o usuário pelo e-mail
-            User user = db.userDao()
-                    .getUserByEmail(email);
+            User user = db.userDao().getUserByEmail(email);
 
-            // Usuário não encontrado
-            if (user == null) {
-
-                requireActivity().runOnUiThread(() ->
-                        Toast.makeText(
-                                requireContext(),
-                                "E-mail ou senha incorretos",
-                                Toast.LENGTH_SHORT
-                        ).show()
-                );
-
-                return;
-            }
-
-            // Senha incorreta
-            if (user.password == null ||
-                    !user.password.equals(senhaCriptografada)) {
-
-                requireActivity().runOnUiThread(() ->
-                        Toast.makeText(
-                                requireContext(),
-                                "E-mail ou senha incorretos",
-                                Toast.LENGTH_SHORT
-                        ).show()
-                );
-
+            // Usuário não encontrado ou senha incorreta
+            // BCrypt gera um hash diferente a cada vez, então a senha é conferida com verificarSenha
+            if (user == null || !SecurityUtils.verificarSenha(senhaDigitada, user.password)) {
+                mostrarToast("E-mail ou senha incorretos");
                 return;
             }
 
@@ -143,27 +93,27 @@ public class LoginFragment extends Fragment {
             // Remove qualquer sessão anterior
             db.userDao().logoutTodos();
 
-            // Define o usuário atual como logado
+            // Define o usuário atual como logado e salva
             user.isLogged = true;
-
-            // Atualiza o usuário no banco
             db.userDao().atualizar(user);
 
-            // Informa o resultado na interface
-            requireActivity().runOnUiThread(() ->
-                    Toast.makeText(
-                            requireContext(),
-                            "Login realizado com sucesso!",
-                            Toast.LENGTH_SHORT
-                    ).show()
-            );
+            // Não precisa abrir outra tela: a MainActivity observa o usuário logado
+            // e troca o Login pela tela Hoje automaticamente.
+            mostrarToast("Login realizado com sucesso!");
         });
+    }
+
+    // Mostra um Toast na thread principal, sem quebrar se o fragment já foi fechado
+    private void mostrarToast(String mensagem) {
+        Activity activity = getActivity();
+        if (activity == null) return;
+        activity.runOnUiThread(() ->
+                Toast.makeText(activity, mensagem, Toast.LENGTH_SHORT).show());
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
         editEmail = null;
         editSenha = null;
         buttonLogin = null;
@@ -173,7 +123,6 @@ public class LoginFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-
         executor.shutdown();
     }
 }

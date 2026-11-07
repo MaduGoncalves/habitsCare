@@ -67,13 +67,13 @@
             android:paddingStart="9dp"
             android:paddingEnd="9dp">
 
+            <!-- Ícone com as cores originais da imagem (sem tint) -->
             <ImageView
                 android:layout_width="15dp"
                 android:layout_height="15dp"
                 android:contentDescription="@null"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_email"
-                app:tint="@color/brand_green_primary" />
+                android:src="@drawable/ic_email" />
 
             <EditText
                 android:id="@+id/editEmail"
@@ -112,13 +112,13 @@
             android:paddingStart="9dp"
             android:paddingEnd="9dp">
 
+            <!-- Ícone com as cores originais da imagem (sem tint) -->
             <ImageView
                 android:layout_width="15dp"
                 android:layout_height="15dp"
                 android:contentDescription="@null"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_lock"
-                app:tint="@color/brand_green_primary" />
+                android:src="@drawable/ic_lock" />
 
             <EditText
                 android:id="@+id/editSenha"

@@ -4,7 +4,9 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "users", indices = {@Index(value = "user_name", unique = true)})
+// O e-mail é o identificador único do usuário (é com ele que o login funciona).
+// O nome pode se repetir: duas pessoas podem ter o mesmo nome.
+@Entity(tableName = "users", indices = {@Index(value = "email", unique = true)})
 public class User {
     @PrimaryKey(autoGenerate = true)
     public int id;

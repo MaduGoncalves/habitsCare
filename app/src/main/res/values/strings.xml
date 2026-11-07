@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">habitsCare</string>
     <string name="app_slogan">Pequenos hábitos, grandes mudanças.</string>
+    <string name="action_settings">Settings</string>
 
     <!-- Tela de Login -->
     <string name="hint_email">E-mail</string>
@@ -28,4 +29,9 @@
 
     <string name="titulo_editar">Editar Perfil</string>
     <string name="btn_salvar_alteracoes">Salvar Alterações</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="saudacao">Olá, %1$s! 👋</string>
+    <string name="progresso_agua">%1$d/%2$d copos</string>
 </resources>

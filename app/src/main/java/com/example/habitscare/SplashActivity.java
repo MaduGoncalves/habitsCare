@@ -1,7 +1,6 @@
 package com.example.habitscare;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -12,6 +11,8 @@ import androidx.core.splashscreen.SplashScreen;
 public class SplashActivity extends AppCompatActivity {
 
     private boolean isDataReady = false;
+    private final Handler handler = new Handler(Looper.getMainLooper());
+    private Runnable runnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,27 +20,27 @@ public class SplashActivity extends AppCompatActivity {
         SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
 
-        // 2. Mantém a Splash Screen visível na tela até que 'isDataReady' seja true
+        // 2. Mantém a Splash visível até a flag ser verdadeira
         splashScreen.setKeepOnScreenCondition(() -> !isDataReady);
 
-        // 3. Simula a verificação ou carregamento de dados (ex: 2 segundos)
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            // Verifica a sessão do utilizador
-            SharedPreferences preferences = getSharedPreferences("user_session", MODE_PRIVATE);
-            boolean isLoggedIn = preferences.getBoolean("is_logged_in", false);
+        // 3. Sempre segue para a MainActivity: ela decide se mostra o Login ou a tela Hoje
+        runnable = () -> {
+            isDataReady = true; // Define como true PRIMEIRO
 
-            Intent intent;
-            if (isLoggedIn) {
-                intent = new Intent(SplashActivity.this, MainActivity.class);
-            } else {
-                intent = new Intent(SplashActivity.this, LoginFragment.class);
-            }
-
-            startActivity(intent);
+            startActivity(new Intent(SplashActivity.this, MainActivity.class));
             finish();
+        };
 
-            // Liberta a Splash Screen para concluir a transição
-            isDataReady = true;
-        }, 500); // 2000 milissegundos = 2 segundos
+        // 4. Executa após o tempo especificado
+        handler.postDelayed(runnable, 500);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Remove callbacks pendentes se a Activity for destruída antes do tempo
+        if (runnable != null) {
+            handler.removeCallbacks(runnable);
+        }
     }
 }

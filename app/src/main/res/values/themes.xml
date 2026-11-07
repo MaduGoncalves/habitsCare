@@ -19,4 +19,7 @@
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_leaf</item>
         <item name="postSplashScreenTheme">@style/Theme.HabitsCare</item>
     </style>
+
+    <!-- Tema do menu popup da Toolbar -->
+    <style name="SettingsPopUp" parent="ThemeOverlay.MaterialComponents.Light" />
 </resources>

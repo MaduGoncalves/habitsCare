@@ -19,6 +19,14 @@ public interface SleepDao {
     @Query("SELECT * FROM sleep WHERE idUsuario = :idUsuario")
     LiveData<List<Sleep>> getByIdUser(int idUsuario);
 
+    // Observado pela tela "Hoje"
+    @Query("SELECT * FROM sleep WHERE idUsuario = :idUsuario AND dia = :dataHoje LIMIT 1")
+    LiveData<Sleep> getSleepDoDia(int idUsuario, String dataHoje);
+
+    // Leitura síncrona, usada dentro do executor do Repository
+    @Query("SELECT * FROM sleep WHERE idUsuario = :idUsuario AND dia = :dia LIMIT 1")
+    Sleep getSleepDoDiaSync(int idUsuario, String dia);
+
     @Insert
     void insert(Sleep s);
 

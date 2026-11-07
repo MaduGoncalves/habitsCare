@@ -38,7 +38,7 @@
             android:textSize="14sp"
             android:textStyle="bold" />
 
-        <!-- FOTO DE PERFIL -->
+        <!-- FOTO DE PERFIL (sem tint: a imagem da câmera e a foto tirada aparecem com as cores originais) -->
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="150dp"
@@ -48,8 +48,7 @@
             android:contentDescription="@null"
             android:padding="22dp"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_camera"
-            app:tint="@color/brand_green_primary" />
+            android:src="@drawable/ic_camera" />
 
         <!-- BOTÃO TIRAR FOTO -->
         <Button
@@ -90,8 +89,7 @@
                 android:layout_height="15dp"
                 android:contentDescription="@null"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_name"
-                app:tint="@color/brand_green_primary" />
+                android:src="@drawable/ic_name" />
 
             <EditText
                 android:id="@+id/editNome"
@@ -135,8 +133,7 @@
                 android:layout_height="15dp"
                 android:contentDescription="@null"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_email"
-                app:tint="@color/brand_green_primary" />
+                android:src="@drawable/ic_email" />
 
             <EditText
                 android:id="@+id/editEmail"
@@ -182,8 +179,7 @@
                 android:layout_height="15dp"
                 android:contentDescription="@null"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_lock"
-                app:tint="@color/brand_green_primary" />
+                android:src="@drawable/ic_lock" />
 
             <EditText
                 android:id="@+id/editSenha"
