@@ -7,8 +7,14 @@
         android:title="Hoje" />
 
     <item
-        android:id="@+id/AboutProjectActivity"
-        android:icon="@android:drawable/ic_menu_info_details"
-        android:title="Sobre" />
+        android:id="@+id/nav_historico"
+        android:icon="@drawable/ic_historico"
+        android:title="Histórico" />
+
+    <item
+        android:id="@+id/nav_perfil"
+        android:icon="@drawable/ic_pessoa"
+        android:title="Perfil" />
+
 
 </menu>

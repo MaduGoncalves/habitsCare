@@ -16,6 +16,7 @@
     <color name="white">#FFFFFF</color>
     <color name="bottom_nav_inactive">#707977</color>
 
-    <!-- NOVA: usada no botão "Sair" -->
+    <!-- NOVAS: botão "Sair" (Perfil) e chips do Histórico -->
     <color name="danger">#C62828</color>
+    <color name="bg_chip">#E0F0E4</color>
 </resources>

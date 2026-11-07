@@ -1,6 +1,5 @@
 package com.example.habitscare;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
@@ -23,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
     // Posição de cada item no menu da barra inferior (res/menu).
     // Ajuste se a ordem do seu menu for diferente.
     private static final int POS_HOJE = 0;
-    private static final int POS_SOBRE = 1;
+    private static final int POS_HISTORICO = 1;
     private static final int POS_PERFIL = 2;
 
     private ActivityMainBinding binding;
@@ -109,6 +108,19 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
+    private void mostrarHistorico() {
+        mostrarBarras();
+        marcarItem(POS_HISTORICO);
+
+        Fragment atual = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+        if (atual instanceof HistoricoFragment) return;
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, new HistoricoFragment())
+                .commit();
+    }
+
     private void mostrarBarras() {
         binding.bottomNav.setVisibility(View.VISIBLE);
         binding.appBarLayout.setVisibility(View.VISIBLE);
@@ -142,9 +154,9 @@ public class MainActivity extends AppCompatActivity {
                 mostrarPerfil();
                 return true;
             }
-            if (posicao == POS_SOBRE) {
-                startActivity(new Intent(this, AboutProjectActivity.class));
-                return false; // "Sobre" abre outra tela, então não fica marcado aqui
+            if (posicao == POS_HISTORICO) {
+                mostrarHistorico();
+                return true;
             }
             return false;
         });
