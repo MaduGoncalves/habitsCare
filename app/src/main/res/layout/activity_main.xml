@@ -20,7 +20,25 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:popupTheme="@style/SettingsPopUp" />
+            app:popupTheme="@style/SettingsPopUp">
+
+            <!-- Foto de perfil adicionada dentro da Toolbar -->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/ivFotoHeader"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="16dp"
+                android:background="@color/bg_input"
+                android:contentDescription="Perfil"
+                android:padding="2dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_pessoa"
+                app:shapeAppearanceOverlay="@style/ShapeAppearance.HabitsCare.Circle"
+                app:strokeColor="@color/brand_green_primary"
+                app:strokeWidth="2dp" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- Conteúdo central (ocupa todo o espaço entre a Toolbar e a BottomNav) -->

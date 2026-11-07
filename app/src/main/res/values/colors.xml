@@ -15,4 +15,7 @@
     <color name="text_hint">#9E9E9E</color>
     <color name="white">#FFFFFF</color>
     <color name="bottom_nav_inactive">#707977</color>
+
+    <!-- NOVA: usada no botão "Sair" -->
+    <color name="danger">#C62828</color>
 </resources>

@@ -16,9 +16,15 @@ import com.example.habitscare.databinding.ActivityMainBinding;
 
 /**
  * Tela única do app: mostra o Login quando não há usuário logado
- * e a tela Hoje (com a barra inferior) quando há.
+ * e as telas Hoje / Perfil (com a barra inferior) quando há.
  */
 public class MainActivity extends AppCompatActivity {
+
+    // Posição de cada item no menu da barra inferior (res/menu).
+    // Ajuste se a ordem do seu menu for diferente.
+    private static final int POS_HOJE = 0;
+    private static final int POS_SOBRE = 1;
+    private static final int POS_PERFIL = 2;
 
     private ActivityMainBinding binding;
 
@@ -39,11 +45,24 @@ public class MainActivity extends AppCompatActivity {
 
         configurarBarraInferior();
 
+        // A foto redonda do cabeçalho leva para o Perfil
+        binding.ivFotoHeader.setOnClickListener(v -> mostrarPerfil());
+
         // Decide a tela pelo usuário logado. Quando o login é feito (ou o usuário sai),
         // o banco avisa e a tela troca sozinha.
         AppDatabase.get(this).userDao().getUsuarioAtivo().observe(this, user -> {
+            Fragment atual = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+
             if (user != null) {
-                mostrarHoje();
+                // Foto do usuário no cabeçalho (atualiza sozinha quando ele troca a foto no Perfil)
+                FotoUtils.carregar(binding.ivFotoHeader, user.getPhoto());
+
+                // IMPORTANTE: este observer também dispara quando o usuário edita nome/e-mail/senha/foto.
+                // Só vai para o Hoje se ainda não estiver numa tela logada (Hoje ou Perfil),
+                // senão salvar o perfil jogaria a pessoa de volta para o Hoje.
+                if (atual == null || atual instanceof LoginFragment) {
+                    mostrarHoje();
+                }
             } else {
                 mostrarLogin();
             }
@@ -65,13 +84,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void mostrarHoje() {
-        binding.bottomNav.setVisibility(View.VISIBLE);
-        binding.appBarLayout.setVisibility(View.VISIBLE);
-
-        Menu menu = binding.bottomNav.getMenu();
-        if (menu.size() > 0) {
-            menu.getItem(0).setChecked(true);
-        }
+        mostrarBarras();
+        marcarItem(POS_HOJE);
 
         Fragment atual = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
         if (atual instanceof HojeFragment) return;
@@ -82,11 +96,36 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
+    private void mostrarPerfil() {
+        mostrarBarras();
+        marcarItem(POS_PERFIL);
+
+        Fragment atual = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+        if (atual instanceof PerfilFragment) return;
+
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragmentContainer, new PerfilFragment())
+                .commit();
+    }
+
+    private void mostrarBarras() {
+        binding.bottomNav.setVisibility(View.VISIBLE);
+        binding.appBarLayout.setVisibility(View.VISIBLE);
+    }
+
+    private void marcarItem(int posicao) {
+        Menu menu = binding.bottomNav.getMenu();
+        if (posicao < menu.size()) {
+            menu.getItem(posicao).setChecked(true);
+        }
+    }
+
     private void configurarBarraInferior() {
         Menu menu = binding.bottomNav.getMenu();
 
         binding.bottomNav.setOnItemSelectedListener(item -> {
-            // Descobre a posição do item no menu (1º item = Hoje, 2º item = Sobre)
+            // Descobre a posição do item no menu
             int posicao = -1;
             for (int i = 0; i < menu.size(); i++) {
                 if (menu.getItem(i).getItemId() == item.getItemId()) {
@@ -95,11 +134,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            if (posicao == 0) {
+            if (posicao == POS_HOJE) {
                 mostrarHoje();
                 return true;
             }
-            if (posicao == 1) {
+            if (posicao == POS_PERFIL) {
+                mostrarPerfil();
+                return true;
+            }
+            if (posicao == POS_SOBRE) {
                 startActivity(new Intent(this, AboutProjectActivity.class));
                 return false; // "Sobre" abre outra tela, então não fica marcado aqui
             }

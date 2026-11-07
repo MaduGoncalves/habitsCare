@@ -1,12 +1,8 @@
 package com.example.habitscare;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,21 +11,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 
 import com.example.habitscare.model.User;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -48,37 +34,18 @@ public class CadastroActivity extends AppCompatActivity {
 
     private AppDatabase db;
 
-    private File photoFile;
-    private Uri photoUri;
-
     private byte[] fotoEmBytes;
     private User usuarioEditando;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    private final ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(
-                    new ActivityResultContracts.RequestPermission(),
-                    granted -> {
-                        if (granted) {
-                            abrirCamera();
-                        } else {
-                            Toast.makeText(this, "Permissão da câmera negada", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-            );
-
-    private final ActivityResultLauncher<Uri> takePictureLauncher =
-            registerForActivityResult(
-                    new ActivityResultContracts.TakePicture(),
-                    success -> {
-                        if (success) {
-                            carregarImagem();
-                        } else {
-                            Toast.makeText(this, "Não foi possível tirar a foto", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-            );
+    // Câmera OU galeria (precisa ser criado como campo, antes de a tela iniciar)
+    private final FotoPicker fotoPicker = new FotoPicker(this, bytes -> {
+        fotoEmBytes = bytes;
+        imageView.setPadding(0, 0, 0, 0);
+        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        FotoUtils.carregar(imageView, bytes);
+    });
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -108,88 +75,10 @@ public class CadastroActivity extends AppCompatActivity {
             carregarUsuario(usuarioId);
         }
 
-        buttonCamera.setOnClickListener(v -> verificarPermissaoCamera());
+        // Botão e a própria foto abrem a escolha entre câmera e galeria
+        buttonCamera.setOnClickListener(v -> fotoPicker.mostrarOpcoes());
+        imageView.setOnClickListener(v -> fotoPicker.mostrarOpcoes());
         buttonSalvar.setOnClickListener(v -> salvarCadastro());
-    }
-
-    private void verificarPermissaoCamera() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                == PackageManager.PERMISSION_GRANTED) {
-            abrirCamera();
-        } else {
-            requestPermissionLauncher.launch(Manifest.permission.CAMERA);
-        }
-    }
-
-    private void abrirCamera() {
-        try {
-            photoFile = criarArquivoImagem();
-            photoUri = FileProvider.getUriForFile(
-                    this,
-                    getPackageName() + ".fileprovider",
-                    photoFile
-            );
-            takePictureLauncher.launch(photoUri);
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Erro ao criar arquivo da foto", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private File criarArquivoImagem() throws IOException {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String nomeArquivo = "JPEG_" + timeStamp + "_";
-        File pasta = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        return File.createTempFile(nomeArquivo, ".jpg", pasta);
-    }
-
-    private void carregarImagem() {
-        if (photoFile != null && photoFile.exists()) {
-            Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
-            if (bitmap != null) {
-                imageView.setPadding(0, 0, 0, 0);
-                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                imageView.setImageBitmap(bitmap);
-            }
-            fotoEmBytes = obterBytesDaFoto();
-        }
-    }
-
-    private byte[] obterBytesDaFoto() {
-        if (photoFile == null || !photoFile.exists()) {
-            return fotoEmBytes;
-        }
-
-        try {
-            Bitmap bitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
-            if (bitmap == null) return null;
-
-            int larguraMaxima = 800;
-            int alturaMaxima = 800;
-
-            float escala = Math.min(
-                    (float) larguraMaxima / bitmap.getWidth(),
-                    (float) alturaMaxima / bitmap.getHeight()
-            );
-
-            if (escala < 1.0f) {
-                int novaLargura = Math.round(bitmap.getWidth() * escala);
-                int novaAltura = Math.round(bitmap.getHeight() * escala);
-
-                Bitmap bitmapReduzido = Bitmap.createScaledBitmap(bitmap, novaLargura, novaAltura, true);
-                bitmap.recycle();
-                bitmap = bitmapReduzido;
-            }
-
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 60, outputStream);
-            bitmap.recycle();
-
-            return outputStream.toByteArray();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     private void carregarUsuario(int usuarioId) {
@@ -231,18 +120,19 @@ public class CadastroActivity extends AppCompatActivity {
             return;
         }
 
-        byte[] fotoFinal = obterBytesDaFoto();
+        final byte[] fotoFinal = fotoEmBytes;
         if (fotoFinal == null || fotoFinal.length == 0) {
-            Toast.makeText(this, "Tire uma foto de perfil", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Escolha uma foto de perfil", Toast.LENGTH_SHORT).show();
             return;
         }
 
         executor.execute(() -> {
-            User usuarioComMesmoNome = db.userDao().getUserByUsername(nome);
+            // O nome pode se repetir; só o e-mail precisa ser único
+            User usuarioComMesmoEmail = db.userDao().getUserByEmail(email);
 
             if (usuarioEditando == null) {
-                if (usuarioComMesmoNome != null) {
-                    runOnUiThread(() -> Toast.makeText(CadastroActivity.this, "Nome de usuário já cadastrado!", Toast.LENGTH_SHORT).show());
+                if (usuarioComMesmoEmail != null) {
+                    runOnUiThread(() -> Toast.makeText(CadastroActivity.this, "E-mail já cadastrado!", Toast.LENGTH_SHORT).show());
                     return;
                 }
 
@@ -260,8 +150,8 @@ public class CadastroActivity extends AppCompatActivity {
                     finish();
                 });
             } else {
-                if (usuarioComMesmoNome != null && usuarioComMesmoNome.getId() != usuarioEditando.getId()) {
-                    runOnUiThread(() -> Toast.makeText(CadastroActivity.this, "Nome de usuário já cadastrado!", Toast.LENGTH_SHORT).show());
+                if (usuarioComMesmoEmail != null && usuarioComMesmoEmail.getId() != usuarioEditando.getId()) {
+                    runOnUiThread(() -> Toast.makeText(CadastroActivity.this, "E-mail já cadastrado!", Toast.LENGTH_SHORT).show());
                     return;
                 }
 

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Salve em res/color/box_stroke_perfil.xml: borda cinza normal, verde quando o campo está em foco -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/brand_green_primary" android:state_focused="true" />
+    <item android:color="@color/border_input" />
+</selector>
