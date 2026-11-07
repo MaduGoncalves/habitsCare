@@ -2,8 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permissão da câmera: sem esta linha o Android nega na hora, sem mostrar o pedido -->
+    <!-- Permissão da câmera -->
     <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Permissões de Notificação e Alarmes -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <!-- A câmera não é obrigatória para instalar o app -->
     <uses-feature
@@ -20,6 +25,22 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HabitsCare">
 
+        <!-- Receivers de Alarme e Inicialização do Sistema -->
+        <receiver
+            android:name=".AlarmeReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".BootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
         <!-- SplashActivity configurada como tela de entrada principal -->
         <activity
             android:name=".SplashActivity"
@@ -28,24 +49,26 @@
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".MainActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name=".AboutProjectActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name=".CadastroActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
-        <!-- FileProvider: necessário para a câmera salvar a foto (usado no CadastroActivity) -->
+        <!-- FileProvider: necessário para a câmera salvar a foto -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

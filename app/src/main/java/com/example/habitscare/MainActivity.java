@@ -27,6 +27,9 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
 
+    // Para reagir só quando o login/logout muda (e não a cada edição do perfil)
+    private Boolean sessaoAnterior = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
 
         configurarBarraInferior();
 
+        // Canais de notificação (Android 8+): criar é seguro mesmo se já existirem
+        NotificationHelper.criarCanais(this);
+
         // A foto redonda do cabeçalho leva para o Perfil
         binding.ivFotoHeader.setOnClickListener(v -> mostrarPerfil());
 
@@ -51,6 +57,18 @@ public class MainActivity extends AppCompatActivity {
         // o banco avisa e a tela troca sozinha.
         AppDatabase.get(this).userDao().getUsuarioAtivo().observe(this, user -> {
             Fragment atual = getSupportFragmentManager().findFragmentById(R.id.fragmentContainer);
+
+            // Login: liga os lembretes salvos. Logout: cancela todos os alarmes.
+            boolean logado = (user != null);
+            if (sessaoAnterior == null || sessaoAnterior != logado) {
+                sessaoAnterior = logado;
+                LembretesPrefs.setSessaoAtiva(this, logado);
+                if (logado) {
+                    AlarmScheduler.reagendarTudo(this);
+                } else {
+                    AlarmScheduler.cancelarTudo(this);
+                }
+            }
 
             if (user != null) {
                 // Foto do usuário no cabeçalho (atualiza sozinha quando ele troca a foto no Perfil)

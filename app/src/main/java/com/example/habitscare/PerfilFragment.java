@@ -32,6 +32,9 @@ public class PerfilFragment extends Fragment {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
+    // Lembretes (notificações e alarmes) + permissões. Também precisa ser campo da classe.
+    private final LembretesController lembretes = new LembretesController(this);
+
     // Câmera ou galeria (precisa ser criado como campo, antes de a tela iniciar)
     private final FotoPicker fotoPicker = new FotoPicker(this, bytes -> {
         if (binding == null) return;
@@ -99,6 +102,14 @@ public class PerfilFragment extends Fragment {
 
         binding.btnSalvar.setOnClickListener(v -> salvar());
         binding.btnSair.setOnClickListener(v -> confirmarSaida());
+
+        lembretes.vincular(binding);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        lembretes.aoRetomar();   // reagenda e atualiza depois de voltar das configurações do sistema
     }
 
     // ---------- Habilitar / desabilitar Salvar ----------
@@ -214,6 +225,7 @@ public class PerfilFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        lembretes.desvincular();
         binding = null;
     }
 
