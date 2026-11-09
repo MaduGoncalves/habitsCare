@@ -1,94 +1,226 @@
 package com.example.habitscare;
 
-import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
+import android.net.Uri;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-/** Canais de notificação, checagem de permissão e exibição das notificações. */
-public final class NotificationHelper {
+public class NotificationHelper {
 
-    public static final String CANAL_SONO = "lembrete_sono";
-    public static final String CANAL_AGUA = "lembrete_agua";
-    public static final String CANAL_RESUMO = "resumo_dia";
-
-    private NotificationHelper() { }
+    // Identificadores dos canais de notificação
+    public static final String CANAL_SONO = "lembrete_sono_v4";
+    public static final String CANAL_CAMINHADA = "lembrete_caminhada";
+    public static final String CANAL_AGUA = "lembrete_agua_personalizado";
 
     /**
-     * Cria os canais (Android 8+). Pode ser chamado quantas vezes quiser: se já existem, nada muda.
-     * Chamamos na MainActivity e também antes de cada notificação.
+     * Cria os canais de notificação do aplicativo
+     *
+     * No Android 8.0 ou superior, cada canal possui suas próprias
+     * configurações de som, vibração e importância
      */
     public static void criarCanais(Context context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return;
 
-        NotificationManager nm = context.getSystemService(NotificationManager.class);
-        if (nm == null) return;
+        // Os canais só existem a partir do Android 8.0 (API 26)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return;
+        }
+
+        NotificationManager nm =
+                context.getSystemService(NotificationManager.class);
+
+        if (nm == null) {
+            return;
+        }
+
+        // -------------------------------------------------
+        // CANAL DO SONO
+        // -------------------------------------------------
 
         NotificationChannel sono = new NotificationChannel(
-                CANAL_SONO, "Hora de dormir", NotificationManager.IMPORTANCE_HIGH);
-        sono.setDescription("Lembrete diário para se preparar para dormir");
+                CANAL_SONO,
+                "Lembrete de sono",
+                NotificationManager.IMPORTANCE_HIGH
+        );
+
+        sono.setDescription("Lembretes relacionados ao horário de dormir");
+
+        // Ativa a vibração.
+        sono.enableVibration(true);
+        sono.setVibrationPattern(new long[]{0, 1000, 500, 1000, 500, 1000});
+
+        // -------------------------------------------------
+        // CANAL DA CAMINHADA
+        // -------------------------------------------------
+
+        NotificationChannel caminhada = new NotificationChannel(
+                CANAL_CAMINHADA,
+                "Lembrete de caminhada",
+                NotificationManager.IMPORTANCE_DEFAULT
+        );
+
+        caminhada.setDescription("Lembrete diário para fazer uma caminhada");
+
+        // Não utiliza vibração.
+        caminhada.enableVibration(false);
+
+        // -------------------------------------------------
+        // CANAL DA ÁGUA
+        // -------------------------------------------------
+
+        // Localiza o arquivo som_agua.mp3 dentro de res/raw
+        Uri somAgua = Uri.parse(
+                "android.resource://" +
+                        context.getPackageName() +
+                        "/" +
+                        R.raw.agua
+        );
+
+        // Define como o Android deve reproduzir o áudio
+        AudioAttributes atributosSom = new AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build();
 
         NotificationChannel agua = new NotificationChannel(
-                CANAL_AGUA, "Beber água", NotificationManager.IMPORTANCE_DEFAULT);
-        agua.setDescription("Lembretes de hidratação ao longo do dia");
+                CANAL_AGUA,
+                "Lembrete de água",
+                NotificationManager.IMPORTANCE_DEFAULT
+        );
 
-        // IMPORTANCE_LOW = notificação "passiva": aparece na barra, mas sem som nem vibração
-        NotificationChannel resumo = new NotificationChannel(
-                CANAL_RESUMO, "Resumo do dia", NotificationManager.IMPORTANCE_LOW);
-        resumo.setDescription("Convite às 20h para preencher os hábitos do dia");
+        agua.setDescription("Lembretes para beber água");
 
+        // Não utiliza vibração
+        agua.enableVibration(false);
+
+        // Configura o áudio personalizado
+        agua.setSound(somAgua, atributosSom);
+
+        // Registra os três canais no Android
         nm.createNotificationChannel(sono);
+        nm.createNotificationChannel(caminhada);
         nm.createNotificationChannel(agua);
-        nm.createNotificationChannel(resumo);
     }
 
     /**
-     * true se o app PODE notificar agora. Cobre os dois casos:
-     * - Android 13+: permissão POST_NOTIFICATIONS concedida;
-     * - qualquer versão: usuário não bloqueou as notificações do app nas configurações.
+     * Verifica se o aplicativo pode exibir notificações.
      */
     public static boolean notificacoesPermitidas(Context context) {
-        return NotificationManagerCompat.from(context).areNotificationsEnabled();
+        return NotificationManagerCompat
+                .from(context)
+                .areNotificationsEnabled();
     }
 
-    /** Mostra a notificação. Devolve false (sem erro) se não houver permissão. */
-    @SuppressLint("MissingPermission") // a permissão é verificada logo abaixo
-    public static boolean mostrar(Context context, String canal, int id, String titulo, String texto) {
-        if (!notificacoesPermitidas(context)) return false;
+    /**
+     * Exibe uma notificação utilizando o canal informado.
+     *
+     * @param context Contexto do aplicativo.
+     * @param canal Identificador do canal.
+     * @param id Identificador único da notificação.
+     * @param titulo Título da notificação.
+     * @param texto Mensagem da notificação.
+     */
+    public static void mostrar(
+            Context context,
+            String canal,
+            int id,
+            String titulo,
+            String texto
+    ) {
 
+        // Verifica se o aplicativo pode enviar notificações.
+        if (!notificacoesPermitidas(context)) {
+            return;
+        }
+
+        // Aceita somente os canais definidos nesta classe.
+        if (!CANAL_SONO.equals(canal)
+                && !CANAL_CAMINHADA.equals(canal)
+                && !CANAL_AGUA.equals(canal)) {
+            return;
+        }
+
+        // Garante que os canais estejam criados.
         criarCanais(context);
 
-        // Tocar na notificação abre o app
-        Intent abrir = new Intent(context, MainActivity.class);
-        abrir.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent toque = PendingIntent.getActivity(
-                context, id, abrir, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        // Ao tocar na notificação, abre a MainActivity.
+        Intent intent = new Intent(context, MainActivity.class);
 
-        int prioridade = CANAL_SONO.equals(canal) ? NotificationCompat.PRIORITY_HIGH
-                : CANAL_RESUMO.equals(canal) ? NotificationCompat.PRIORITY_LOW
-                  : NotificationCompat.PRIORITY_DEFAULT;
+        intent.setFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP
+        );
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, canal)
-                .setSmallIcon(R.drawable.ic_notificacao)
-                .setContentTitle(titulo)
-                .setContentText(texto)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(texto))
-                .setPriority(prioridade)
-                .setCategory(NotificationCompat.CATEGORY_REMINDER)
-                .setContentIntent(toque)
-                .setAutoCancel(true);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                context,
+                id,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT |
+                        PendingIntent.FLAG_IMMUTABLE
+        );
 
+        // Define a prioridade conforme o tipo de notificação.
+        int prioridade = CANAL_SONO.equals(canal)
+                ? NotificationCompat.PRIORITY_HIGH
+                : NotificationCompat.PRIORITY_DEFAULT;
+
+        // Monta a notificação.
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(context, canal)
+                        .setSmallIcon(R.drawable.ic_notificacao)
+                        .setContentTitle(titulo)
+                        .setContentText(texto)
+                        .setStyle(
+                                new NotificationCompat.BigTextStyle()
+                                        .bigText(texto)
+                        )
+                        .setCategory(NotificationCompat.CATEGORY_REMINDER)
+                        .setPriority(prioridade)
+                        .setContentIntent(pendingIntent)
+                        .setAutoCancel(true);
+
+        /*
+         * Antes do Android 8.0, não existem canais de notificação.
+         * Por isso, configuramos o som diretamente na notificação
+         * nessas versões.
+         */
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+
+            if (CANAL_AGUA.equals(canal)) {
+
+                // Reproduz o áudio personalizado da água.
+                Uri somAgua = Uri.parse(
+                        "android.resource://" +
+                                context.getPackageName() +
+                                "/" +
+                                R.raw.agua
+                );
+
+                builder.setSound(somAgua);
+
+            } else if (CANAL_CAMINHADA.equals(canal)) {
+
+                // Utiliza o som padrão de notificação.
+                builder.setDefaults(NotificationCompat.DEFAULT_SOUND);
+
+            } else if (CANAL_SONO.equals(canal)) {
+
+                // Mantém o lembrete de sono sem som.
+                builder.setSound(null);
+            }
+        }
+
+        // Exibe a notificação.
         try {
             NotificationManagerCompat.from(context).notify(id, builder.build());
-            return true;
         } catch (SecurityException e) {
-            return false; // permissão revogada no meio do caminho: ignora sem crashar
+            e.printStackTrace();
         }
     }
 }

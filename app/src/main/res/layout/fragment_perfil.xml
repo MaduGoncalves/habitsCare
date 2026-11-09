@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -16,6 +15,7 @@
         android:paddingTop="8dp"
         android:paddingEnd="20dp">
 
+        <!-- Título da tela -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -26,6 +26,7 @@
             android:textSize="26sp"
             android:textStyle="bold" />
 
+        <!-- Card de informações do usuário -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -40,7 +41,7 @@
                 android:orientation="vertical"
                 android:padding="24dp">
 
-                <!-- Foto redonda + nome/e-mail salvos -->
+                <!-- Foto e informações do usuário -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -87,9 +88,11 @@
                             android:textColor="@color/text_secondary"
                             android:textSize="14sp"
                             tools:text="teste@gmail.com" />
+
                     </LinearLayout>
                 </LinearLayout>
 
+                <!-- Botão para alterar foto -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAlterarFoto"
                     style="@style/Widget.MaterialComponents.Button.TextButton"
@@ -101,7 +104,7 @@
                     android:textAllCaps="false"
                     android:textColor="@color/brand_green_primary" />
 
-                <!-- Nome -->
+                <!-- Campo Nome -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilNome"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -125,9 +128,10 @@
                         android:inputType="textPersonName|textCapWords"
                         android:maxLines="1"
                         android:textColor="@color/text_primary" />
+
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- E-mail -->
+                <!-- Campo E-mail -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilEmail"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -152,9 +156,10 @@
                         android:inputType="textEmailAddress"
                         android:maxLines="1"
                         android:textColor="@color/text_primary" />
+
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Senha -->
+                <!-- Campo Senha -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilSenha"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -184,9 +189,10 @@
                         android:inputType="textPassword"
                         android:maxLines="1"
                         android:textColor="@color/text_primary" />
+
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Salvar (começa desabilitado) -->
+                <!-- Botão Salvar -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSalvar"
                     android:layout_width="match_parent"
@@ -203,7 +209,7 @@
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- ===== Lembretes ===== -->
+        <!-- Card de Lembretes -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -219,6 +225,7 @@
                 android:orientation="vertical"
                 android:padding="24dp">
 
+                <!-- Título -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -277,18 +284,28 @@
                     android:textAllCaps="false"
                     android:textColor="@color/brand_green_primary" />
 
-                <!-- Resumo do dia -->
+                <!-- Hora de caminhar -->
                 <com.google.android.material.switchmaterial.SwitchMaterial
-                    android:id="@+id/swResumo"
+                    android:id="@+id/swCaminhada"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:minHeight="48dp"
-                    android:text="Resumo do dia (às 20h)"
+                    android:text="Hora de caminhar"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     app:useMaterialThemeColors="true" />
 
-                <!-- Aparece só quando falta a permissão de alarme exato -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnHoraCaminhada"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:text="Horário: 20:00"
+                    android:textAllCaps="false"
+                    android:textColor="@color/brand_green_primary" />
+
+                <!-- Aviso de permissão de alarme exato -->
                 <TextView
                     android:id="@+id/tvAvisoLembretes"
                     android:layout_width="match_parent"
@@ -298,10 +315,11 @@
                     android:textColor="@color/brand_green_primary"
                     android:textSize="13sp"
                     android:visibility="gone" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Sair -->
+        <!-- Botão Sair -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSair"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -314,5 +332,6 @@
             android:textSize="16sp"
             app:cornerRadius="16dp"
             app:strokeColor="@color/danger" />
+
     </LinearLayout>
 </ScrollView>

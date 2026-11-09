@@ -1,71 +1,145 @@
+
 package com.example.habitscare;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import java.util.Calendar;
-
-/**
- * Recebe o disparo dos alarmes (hora de dormir, água e resumo do dia),
- * agenda o próximo e mostra a notificação correspondente.
- */
 public class AlarmeReceiver extends BroadcastReceiver {
 
+    // IDs das notificações
     private static final int ID_SONO = 2001;
-    private static final int ID_AGUA = 2002;
-    private static final int ID_RESUMO = 2003;
-
-    private static final String[] FRASES_AGUA = {
-            "Que tal um copo de água agora? Seu corpo agradece.",
-            "Hidratação em dia! Beba um copo de água.",
-            "Pausa rápida: um copo de água ajuda no foco e na energia."
-    };
+    private static final int ID_CAMINHADA = 2002;
+    private static final int ID_AGUA = 2003;
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent == null) return;
-        String tipo = intent.getStringExtra(AlarmScheduler.EXTRA_TIPO);
-        if (tipo == null) return;
 
+        // Verifica se o Intent recebido é válido.
+        if (intent == null || intent.getAction() == null) {
+            return;
+        }
+
+        // Verifica se a ação corresponde ao alarme do aplicativo.
+        if (!AlarmScheduler.ACAO_ALARME.equals(intent.getAction())) {
+            return;
+        }
+
+        // Utiliza o contexto da aplicação.
         Context app = context.getApplicationContext();
 
-        // Sem usuário logado: não notifica
-        if (!LembretesPrefs.isSessaoAtiva(app)) return;
+        // Recupera o tipo de alarme recebido.
+        String tipo = intent.getStringExtra(AlarmScheduler.EXTRA_TIPO);
 
-        // Permissão de notificações perdida: desliga tudo sem erro
-        if (!NotificationHelper.notificacoesPermitidas(app)) {
-            LembretesPrefs.desativarTudo(app);
-            AlarmScheduler.cancelarTudo(app);
+        if (tipo == null) {
+            return;
+        }
+
+        // Verifica se existe uma sessão ativa no aplicativo.
+        if (!LembretesPrefs.isSessaoAtiva(app)) {
             return;
         }
 
         switch (tipo) {
+
+            // =============================================
+            // ALARME DO SONO
+            // =============================================
+
             case AlarmScheduler.TIPO_SONO:
-                if (!LembretesPrefs.isSonoAtivo(app)) return;
-                AlarmScheduler.agendarSono(app);   // agenda o de amanhã antes de notificar
-                NotificationHelper.mostrar(app, NotificationHelper.CANAL_SONO, ID_SONO,
-                        "Hora de dormir 🌙",
-                        "Está na hora de se preparar para ir para a cama. Boa noite!");
+
+                // Verifica se o lembrete de sono está ativado.
+                if (!LembretesPrefs.isSonoAtivo(app)) {
+                    break;
+                }
+
+                // Agenda novamente o próximo lembrete de sono.
+                AlarmScheduler.agendarSono(app);
+
+                // Verifica se as notificações estão permitidas.
+                if (!NotificationHelper.notificacoesPermitidas(app)) {
+                    break;
+                }
+
+                // Exibe a notificação de sono.
+                NotificationHelper.mostrar(
+                        app,
+                        NotificationHelper.CANAL_SONO,
+                        ID_SONO,
+                        "Hora de dormir! 🌙",
+                        "Está chegando a hora de descansar. Prepare-se para uma boa noite de sono!"
+                );
+
                 break;
+
+            // =============================================
+            // ALARME DA ÁGUA
+            // =============================================
 
             case AlarmScheduler.TIPO_AGUA:
-                if (!LembretesPrefs.isAguaAtiva(app)) return;
-                AlarmScheduler.agendarAgua(app);   // agenda o próximo lembrete
-                int indice = Calendar.getInstance().get(Calendar.HOUR_OF_DAY) % FRASES_AGUA.length;
-                NotificationHelper.mostrar(app, NotificationHelper.CANAL_AGUA, ID_AGUA,
-                        "Hora de beber água 💧", FRASES_AGUA[indice]);
+
+                // Verifica se o lembrete de água está ativado.
+                if (!LembretesPrefs.isAguaAtiva(app)) {
+                    break;
+                }
+
+                // Agenda o próximo lembrete de água.
+                AlarmScheduler.agendarAgua(app);
+
+                // Verifica se as notificações estão permitidas.
+                if (!NotificationHelper.notificacoesPermitidas(app)) {
+                    break;
+                }
+
+                /*
+                 * Exibe a notificação de água.
+                 * O som personalizado será reproduzido
+                 * pelo canal CANAL_AGUA.
+                 */
+                NotificationHelper.mostrar(
+                        app,
+                        NotificationHelper.CANAL_AGUA,
+                        ID_AGUA,
+                        "Hora de beber água! 💧",
+                        "Não se esqueça de se hidratar. Beba um copo de água!"
+                );
+
                 break;
 
-            case AlarmScheduler.TIPO_RESUMO:
-                if (!LembretesPrefs.isResumoAtivo(app)) return;
-                AlarmScheduler.agendarResumo(app); // agenda o de amanhã
-                NotificationHelper.mostrar(app, NotificationHelper.CANAL_RESUMO, ID_RESUMO,
-                        "Resumo do dia 📋",
-                        "Confira e preencha os hábitos de hoje: água, caminhada e sono.");
+            // =============================================
+            // ALARME DA CAMINHADA
+            // =============================================
+
+            case AlarmScheduler.TIPO_CAMINHADA:
+
+                // Verifica se o lembrete de caminhada está ativado.
+                if (!LembretesPrefs.isCaminhadaAtiva(app)) {
+                    break;
+                }
+
+                // Agenda novamente a próxima caminhada,
+                // respeitando o horário escolhido pelo usuário.
+                AlarmScheduler.agendarCaminhada(app);
+
+                // Verifica se as notificações estão permitidas.
+                if (!NotificationHelper.notificacoesPermitidas(app)) {
+                    break;
+                }
+
+                // Exibe a notificação da caminhada.
+                NotificationHelper.mostrar(
+                        app,
+                        NotificationHelper.CANAL_CAMINHADA,
+                        ID_CAMINHADA,
+                        "Hora de caminhar! 🚶‍♀️",
+                        "Que tal fazer uma caminhada? Reserve um momento para movimentar o corpo e cuidar da sua saúde!"
+                );
+
                 break;
 
             default:
+
+                // Não faz nada caso o tipo de alarme seja desconhecido.
                 break;
         }
     }

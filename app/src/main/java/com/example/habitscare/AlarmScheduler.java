@@ -10,169 +10,415 @@ import android.provider.Settings;
 
 import java.util.Calendar;
 
-/**
- * Agenda e cancela os alarmes no AlarmManager.
- *
- * - Hora de dormir e Resumo do dia: alarme EXATO, que se repete todo dia
- *   (o AlarmeReceiver agenda o do dia seguinte assim que o de hoje dispara).
- * - Beber água: alarme aproximado, a cada N horas entre 8h e 22h (não precisa ser exato).
- * - Se a permissão de alarme exato não estiver concedida, cai para alarme aproximado
- *   (o lembrete pode atrasar alguns minutos, mas continua funcionando e o app não quebra).
- */
-public final class AlarmScheduler {
+public class AlarmScheduler {
 
-    public static final String ACAO_ALARME = "com.example.habitscare.ACAO_ALARME";
+    // Ação utilizada para identificar os alarmes do aplicativo.
+    public static final String ACAO_ALARME =
+            "com.example.habitscare.ACAO_ALARME";
+
+    // Chave utilizada para identificar o tipo de alarme.
     public static final String EXTRA_TIPO = "tipo";
 
+    // Tipos de alarme.
     public static final String TIPO_SONO = "sono";
     public static final String TIPO_AGUA = "agua";
-    public static final String TIPO_RESUMO = "resumo";
+    public static final String TIPO_CAMINHADA = "caminhada";
 
-    private static final int HORA_RESUMO = 20;   // 20h
-    private static final int AGUA_INICIO = 8;    // primeiro lembrete a partir das 8h
-    private static final int AGUA_FIM = 22;      // sem lembretes a partir das 22h
+    // Horários permitidos para os lembretes de água.
+    private static final int AGUA_INICIO = 8;
+    private static final int AGUA_FIM = 22;
 
-    private AlarmScheduler() { }
-
-    // ---------- Permissão de alarme exato (Android 12+) ----------
-
-    /** true se pode agendar alarmes exatos (sempre true antes do Android 12). */
+    /**
+     * Verifica se o aplicativo possui permissão
+     * para agendar alarmes exatos.
+     */
     public static boolean podeAgendarExato(Context context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return true;
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        return am != null && am.canScheduleExactAlarms();
-    }
 
-    /** Tela do sistema onde o usuário libera "Alarmes e lembretes" para o app. */
-    public static Intent intentPermissaoAlarmeExato(Context context) {
-        Uri pacote = Uri.parse("package:" + context.getPackageName());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            return new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, pacote);
+
+            AlarmManager am =
+                    (AlarmManager) context.getSystemService(
+                            Context.ALARM_SERVICE
+                    );
+
+            return am != null && am.canScheduleExactAlarms();
         }
-        return new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, pacote);
-    }
 
-    // ---------- Agendamentos ----------
-
-    /** Agenda a próxima "hora de dormir" (hoje, se ainda não passou; senão amanhã). */
-    public static void agendarSono(Context context) {
-        long quando = proximaOcorrencia(
-                LembretesPrefs.getSonoHora(context), LembretesPrefs.getSonoMinuto(context));
-        agendar(context, TIPO_SONO, quando, true);
-    }
-
-    /** Agenda o próximo lembrete de água, respeitando o intervalo e a janela das 8h às 22h. */
-    public static void agendarAgua(Context context) {
-        long quando = proximaAgua(LembretesPrefs.getAguaIntervaloH(context));
-        agendar(context, TIPO_AGUA, quando, false);
-    }
-
-    /** Agenda o próximo resumo do dia, às 20h. */
-    public static void agendarResumo(Context context) {
-        agendar(context, TIPO_RESUMO, proximaOcorrencia(HORA_RESUMO, 0), true);
-    }
-
-    public static void cancelar(Context context, String tipo) {
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if (am != null) am.cancel(pendingIntent(context, tipo));
-    }
-
-    public static void cancelarTudo(Context context) {
-        cancelar(context, TIPO_SONO);
-        cancelar(context, TIPO_AGUA);
-        cancelar(context, TIPO_RESUMO);
+        return true;
     }
 
     /**
-     * Põe os alarmes de acordo com as preferências salvas. É seguro chamar sempre
-     * (login, boot, voltar para a tela de Perfil...).
-     * - Sem usuário logado: cancela tudo.
-     * - Sem permissão de notificações: desativa os lembretes sem erro e cancela os alarmes.
+     * Retorna a Intent para solicitar a permissão
+     * de alarmes exatos nas configurações do Android.
+     */
+    public static Intent intentPermissaoAlarmeExato(Context context) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+
+            return new Intent(
+                    Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM,
+                    Uri.parse("package:" + context.getPackageName())
+            );
+        }
+
+        return new Intent(
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.parse("package:" + context.getPackageName())
+        );
+    }
+
+    // =============================================
+    // AGENDAMENTO DOS LEMBRETES
+    // =============================================
+
+    /**
+     * Agenda o lembrete de sono utilizando o horário
+     * configurado nas preferências do aplicativo.
+     */
+    public static void agendarSono(Context context) {
+
+        if (!LembretesPrefs.isSonoAtivo(context)) {
+            cancelar(context, TIPO_SONO);
+            return;
+        }
+
+        int hora = LembretesPrefs.getSonoHora(context);
+        int minuto = LembretesPrefs.getSonoMinuto(context);
+
+        Calendar calendario = proximaOcorrencia(hora, minuto);
+
+        agendar(
+                context,
+                TIPO_SONO,
+                calendario.getTimeInMillis()
+        );
+    }
+
+    /**
+     * Agenda o lembrete de água utilizando o intervalo
+     * configurado nas preferências do aplicativo.
+     */
+    public static void agendarAgua(Context context) {
+
+        if (!LembretesPrefs.isAguaAtiva(context)) {
+            cancelar(context, TIPO_AGUA);
+            return;
+        }
+
+        int intervalo = LembretesPrefs.getAguaIntervaloH(context);
+
+        Calendar calendario = proximaAgua(intervalo);
+
+        agendar(
+                context,
+                TIPO_AGUA,
+                calendario.getTimeInMillis()
+        );
+    }
+
+    /**
+     * Agenda o lembrete de caminhada utilizando
+     * o horário escolhido pelo usuário.
+     *
+     * O horário padrão é 20h, mas pode ser alterado
+     * pelo botão de configuração na tela de Perfil.
+     */
+    public static void agendarCaminhada(Context context) {
+
+        if (!LembretesPrefs.isCaminhadaAtiva(context)) {
+            cancelar(context, TIPO_CAMINHADA);
+            return;
+        }
+
+        // Recupera o horário escolhido pelo usuário.
+        int hora = LembretesPrefs.getCaminhadaHora(context);
+        int minuto = LembretesPrefs.getCaminhadaMinuto(context);
+
+        // Calcula a próxima ocorrência desse horário.
+        Calendar calendario = proximaOcorrencia(hora, minuto);
+
+        agendar(
+                context,
+                TIPO_CAMINHADA,
+                calendario.getTimeInMillis()
+        );
+    }
+
+    // =============================================
+    // CANCELAMENTO DOS ALARMES
+    // =============================================
+
+    /**
+     * Cancela um alarme específico.
+     */
+    public static void cancelar(Context context, String tipo) {
+
+        AlarmManager am =
+                (AlarmManager) context.getSystemService(
+                        Context.ALARM_SERVICE
+                );
+
+        if (am == null) return;
+
+        PendingIntent pi = criarPendingIntent(context, tipo);
+
+        am.cancel(pi);
+        pi.cancel();
+    }
+
+    /**
+     * Cancela todos os alarmes do aplicativo.
+     */
+    public static void cancelarTudo(Context context) {
+
+        cancelar(context, TIPO_SONO);
+        cancelar(context, TIPO_AGUA);
+        cancelar(context, TIPO_CAMINHADA);
+    }
+
+    // =============================================
+    // REAGENDAMENTO
+    // =============================================
+
+    /**
+     * Reagenda todos os lembretes ativos.
+     *
+     * Esse método é utilizado quando o usuário inicia
+     * uma sessão ou quando o celular é reiniciado.
      */
     public static void reagendarTudo(Context context) {
+
         Context app = context.getApplicationContext();
 
+        // Verifica se existe uma sessão ativa.
         if (!LembretesPrefs.isSessaoAtiva(app)) {
             cancelarTudo(app);
             return;
         }
-        if (LembretesPrefs.algumAtivo(app) && !NotificationHelper.notificacoesPermitidas(app)) {
-            LembretesPrefs.desativarTudo(app);
-            cancelarTudo(app);
-            return;
+
+        // Reagenda o lembrete de água.
+        if (LembretesPrefs.isAguaAtiva(app)) {
+
+            agendarAgua(app);
+
+        } else {
+
+            cancelar(app, TIPO_AGUA);
         }
 
-        if (LembretesPrefs.isSonoAtivo(app)) agendarSono(app); else cancelar(app, TIPO_SONO);
-        if (LembretesPrefs.isAguaAtiva(app)) agendarAgua(app); else cancelar(app, TIPO_AGUA);
-        if (LembretesPrefs.isResumoAtivo(app)) agendarResumo(app); else cancelar(app, TIPO_RESUMO);
+        // Reagenda o lembrete de sono.
+        if (LembretesPrefs.isSonoAtivo(app)
+                && NotificationHelper.notificacoesPermitidas(app)) {
+
+            agendarSono(app);
+
+        } else {
+
+            cancelar(app, TIPO_SONO);
+        }
+
+        // Reagenda o lembrete de caminhada.
+        if (LembretesPrefs.isCaminhadaAtiva(app)
+                && NotificationHelper.notificacoesPermitidas(app)) {
+
+            agendarCaminhada(app);
+
+        } else {
+
+            cancelar(app, TIPO_CAMINHADA);
+        }
     }
 
-    // ---------- Internos ----------
+    // =============================================
+    // ALARME MANAGER
+    // =============================================
 
-    private static void agendar(Context context, String tipo, long quandoMillis, boolean preferirExato) {
-        AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+    /**
+     * Agenda um alarme no AlarmManager.
+     *
+     * Tenta utilizar um alarme exato. Caso não tenha
+     * permissão, utiliza um alarme não exato.
+     */
+    private static void agendar(
+            Context context,
+            String tipo,
+            long horario
+    ) {
+
+        AlarmManager am =
+                (AlarmManager) context.getSystemService(
+                        Context.ALARM_SERVICE
+                );
+
         if (am == null) return;
 
-        PendingIntent pi = pendingIntent(context, tipo);
+        PendingIntent pi = criarPendingIntent(context, tipo);
 
-        if (preferirExato && podeAgendarExato(context)) {
+        try {
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+                if (podeAgendarExato(context)) {
+
+                    am.setExactAndAllowWhileIdle(
+                            AlarmManager.RTC_WAKEUP,
+                            horario,
+                            pi
+                    );
+
+                } else {
+
+                    am.setAndAllowWhileIdle(
+                            AlarmManager.RTC_WAKEUP,
+                            horario,
+                            pi
+                    );
+                }
+
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+
+                am.setExact(
+                        AlarmManager.RTC_WAKEUP,
+                        horario,
+                        pi
+                );
+
+            } else {
+
+                am.set(
+                        AlarmManager.RTC_WAKEUP,
+                        horario,
+                        pi
+                );
+            }
+
+        } catch (SecurityException e) {
+
+            // Caso não seja possível agendar um alarme exato,
+            // tenta utilizar um alarme não exato.
             try {
-                am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, quandoMillis, pi);
-                return;
-            } catch (SecurityException e) {
-                // Permissão revogada entre a checagem e o agendamento: usa o aproximado abaixo
+
+                am.setAndAllowWhileIdle(
+                        AlarmManager.RTC_WAKEUP,
+                        horario,
+                        pi
+                );
+
+            } catch (Exception ex) {
+
+                ex.printStackTrace();
             }
         }
-        am.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, quandoMillis, pi);
     }
 
-    private static PendingIntent pendingIntent(Context context, String tipo) {
+    // =============================================
+    // PENDING INTENT
+    // =============================================
+
+    /**
+     * Cria o PendingIntent responsável por chamar
+     * o AlarmeReceiver quando o horário chegar.
+     */
+    private static PendingIntent criarPendingIntent(
+            Context context,
+            String tipo
+    ) {
+
         Intent intent = new Intent(context, AlarmeReceiver.class);
+
         intent.setAction(ACAO_ALARME);
         intent.putExtra(EXTRA_TIPO, tipo);
+
         return PendingIntent.getBroadcast(
-                context, codigo(tipo), intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                context,
+                codigo(tipo),
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT
+                        | PendingIntent.FLAG_IMMUTABLE
+        );
     }
 
-    /** Cada tipo tem seu código, para um alarme não substituir o outro. */
-    public static int codigo(String tipo) {
+    /**
+     * Define um código único para cada tipo de alarme.
+     */
+    private static int codigo(String tipo) {
+
         switch (tipo) {
-            case TIPO_SONO:   return 1001;
-            case TIPO_AGUA:   return 1002;
-            default:          return 1003;
+
+            case TIPO_SONO:
+                return 1001;
+
+            case TIPO_AGUA:
+                return 1002;
+
+            case TIPO_CAMINHADA:
+                return 1003;
+
+            default:
+                return 1000;
         }
     }
 
-    /** Próximo horário "hh:mm": hoje se ainda não passou, senão amanhã. */
-    private static long proximaOcorrencia(int hora, int minuto) {
-        Calendar c = Calendar.getInstance();
-        c.set(Calendar.HOUR_OF_DAY, hora);
-        c.set(Calendar.MINUTE, minuto);
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.MILLISECOND, 0);
-        if (c.getTimeInMillis() <= System.currentTimeMillis()) {
-            c.add(Calendar.DAY_OF_MONTH, 1);
+    // =============================================
+    // CÁLCULO DOS HORÁRIOS
+    // =============================================
+
+    /**
+     * Calcula a próxima ocorrência de um horário diário.
+     */
+    private static Calendar proximaOcorrencia(
+            int hora,
+            int minuto
+    ) {
+
+        Calendar calendario = Calendar.getInstance();
+
+        calendario.set(Calendar.HOUR_OF_DAY, hora);
+        calendario.set(Calendar.MINUTE, minuto);
+        calendario.set(Calendar.SECOND, 0);
+        calendario.set(Calendar.MILLISECOND, 0);
+
+        // Se o horário já passou hoje, agenda para amanhã.
+        if (calendario.getTimeInMillis() <= System.currentTimeMillis()) {
+            calendario.add(Calendar.DAY_OF_YEAR, 1);
         }
-        return c.getTimeInMillis();
+
+        return calendario;
     }
 
-    /** Agora + intervalo; se cair fora das 8h–22h, vai para as 8h seguintes. */
-    private static long proximaAgua(int intervaloHoras) {
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.HOUR_OF_DAY, Math.max(1, intervaloHoras));
-        c.set(Calendar.SECOND, 0);
-        c.set(Calendar.MILLISECOND, 0);
+    /**
+     * Calcula o próximo horário do lembrete de água.
+     *
+     * Os lembretes acontecem entre 08h e 22h,
+     * respeitando o intervalo configurado pelo usuário.
+     */
+    private static Calendar proximaAgua(int intervalo) {
 
-        int hora = c.get(Calendar.HOUR_OF_DAY);
-        if (hora >= AGUA_FIM) {                 // noite: amanhã de manhã
-            c.add(Calendar.DAY_OF_MONTH, 1);
-            c.set(Calendar.HOUR_OF_DAY, AGUA_INICIO);
-            c.set(Calendar.MINUTE, 0);
-        } else if (hora < AGUA_INICIO) {        // madrugada: hoje de manhã
-            c.set(Calendar.HOUR_OF_DAY, AGUA_INICIO);
-            c.set(Calendar.MINUTE, 0);
+        Calendar agora = Calendar.getInstance();
+
+        Calendar proxima = (Calendar) agora.clone();
+
+        // Adiciona o intervalo configurado.
+        proxima.add(Calendar.HOUR_OF_DAY, intervalo);
+
+        proxima.set(Calendar.SECOND, 0);
+        proxima.set(Calendar.MILLISECOND, 0);
+
+        // Se ultrapassar 22h, agenda para as 08h do dia seguinte.
+        if (proxima.get(Calendar.HOUR_OF_DAY) >= AGUA_FIM) {
+
+            proxima.add(Calendar.DAY_OF_YEAR, 1);
+            proxima.set(Calendar.HOUR_OF_DAY, AGUA_INICIO);
+            proxima.set(Calendar.MINUTE, 0);
         }
-        return c.getTimeInMillis();
+
+        // Garante que o horário não seja anterior às 08h.
+        if (proxima.get(Calendar.HOUR_OF_DAY) < AGUA_INICIO) {
+
+            proxima.set(Calendar.HOUR_OF_DAY, AGUA_INICIO);
+            proxima.set(Calendar.MINUTE, 0);
+        }
+
+        return proxima;
     }
 }
