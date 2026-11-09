@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.util.Patterns;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -117,6 +118,13 @@ public class CadastroActivity extends AppCompatActivity {
 
         if (nome.isEmpty() || email.isEmpty() || (usuarioEditando == null && senha.isEmpty())) {
             Toast.makeText(this, "Preencha todos os campos obrigatórios", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // ===== NOVO: validação do formato do e-mail =====
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            editEmail.setError("Digite um e-mail válido");
+            editEmail.requestFocus();
             return;
         }
 

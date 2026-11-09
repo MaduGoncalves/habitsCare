@@ -12,6 +12,9 @@ import java.util.Calendar;
 
 public class AlarmScheduler {
 
+    private static final boolean MODO_TESTE = true;
+    private static final int INTERVALO_TESTE_MIN = 2;
+
     // Ação utilizada para identificar os alarmes do aplicativo.
     public static final String ACAO_ALARME =
             "com.example.habitscare.ACAO_ALARME";
@@ -393,6 +396,15 @@ public class AlarmScheduler {
      * respeitando o intervalo configurado pelo usuário.
      */
     private static Calendar proximaAgua(int intervalo) {
+
+        // ===== MODO DE TESTE: ignora o intervalo e a janela 08h-22h =====
+        if (MODO_TESTE) {
+            Calendar teste = Calendar.getInstance();
+            teste.add(Calendar.MINUTE, INTERVALO_TESTE_MIN);
+            teste.set(Calendar.SECOND, 0);
+            teste.set(Calendar.MILLISECOND, 0);
+            return teste;
+        }
 
         Calendar agora = Calendar.getInstance();
 
