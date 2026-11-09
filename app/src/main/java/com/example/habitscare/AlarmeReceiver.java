@@ -1,9 +1,10 @@
-
 package com.example.habitscare;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+
+import androidx.core.content.ContextCompat;
 
 public class AlarmeReceiver extends BroadcastReceiver {
 
@@ -15,53 +16,45 @@ public class AlarmeReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        // Verifica se o Intent recebido é válido.
+        android.util.Log.d("ALARME", "onReceive: "
+                + (intent == null ? "null" : intent.getAction()));
+
         if (intent == null || intent.getAction() == null) {
             return;
         }
 
-        // Verifica se a ação corresponde ao alarme do aplicativo.
         if (!AlarmScheduler.ACAO_ALARME.equals(intent.getAction())) {
             return;
         }
 
-        // Utiliza o contexto da aplicação.
         Context app = context.getApplicationContext();
 
-        // Recupera o tipo de alarme recebido.
         String tipo = intent.getStringExtra(AlarmScheduler.EXTRA_TIPO);
 
         if (tipo == null) {
             return;
         }
 
-        // Verifica se existe uma sessão ativa no aplicativo.
         if (!LembretesPrefs.isSessaoAtiva(app)) {
+            android.util.Log.d("ALARME", "sessao inativa, ignorando");
             return;
         }
 
         switch (tipo) {
 
-            // =============================================
-            // ALARME DO SONO
-            // =============================================
-
+            // ---------------- SONO ----------------
             case AlarmScheduler.TIPO_SONO:
 
-                // Verifica se o lembrete de sono está ativado.
                 if (!LembretesPrefs.isSonoAtivo(app)) {
                     break;
                 }
 
-                // Agenda novamente o próximo lembrete de sono.
                 AlarmScheduler.agendarSono(app);
 
-                // Verifica se as notificações estão permitidas.
                 if (!NotificationHelper.notificacoesPermitidas(app)) {
                     break;
                 }
 
-                // Exibe a notificação de sono.
                 NotificationHelper.mostrar(
                         app,
                         NotificationHelper.CANAL_SONO,
@@ -72,61 +65,47 @@ public class AlarmeReceiver extends BroadcastReceiver {
 
                 break;
 
-            // =============================================
-            // ALARME DA ÁGUA
-            // =============================================
-
+            // ---------------- ÁGUA (serviço + plano B) ----------------
             case AlarmScheduler.TIPO_AGUA:
 
-                // Verifica se o lembrete de água está ativado.
                 if (!LembretesPrefs.isAguaAtiva(app)) {
+                    android.util.Log.d("ALARME", "agua desativada");
                     break;
                 }
 
-                // Agenda o próximo lembrete de água.
                 AlarmScheduler.agendarAgua(app);
 
-                // Verifica se as notificações estão permitidas.
-                if (!NotificationHelper.notificacoesPermitidas(app)) {
-                    break;
+                try {
+                    android.util.Log.d("ALARME", "iniciando AlarmeService");
+                    ContextCompat.startForegroundService(
+                            app, new Intent(app, AlarmeService.class));
+                } catch (Exception e) {
+                    // Plano B: se o serviço falhar, pelo menos mostra a notificação
+                    android.util.Log.e("ALARME", "falha ao iniciar servico: " + e);
+                    NotificationHelper.mostrar(
+                            app,
+                            NotificationHelper.CANAL_AGUA,
+                            ID_AGUA,
+                            "Hora de beber água! 💧",
+                            "Não se esqueça de se hidratar. Beba um copo de água!"
+                    );
                 }
-
-                /*
-                 * Exibe a notificação de água.
-                 * O som personalizado será reproduzido
-                 * pelo canal CANAL_AGUA.
-                 */
-                NotificationHelper.mostrar(
-                        app,
-                        NotificationHelper.CANAL_AGUA,
-                        ID_AGUA,
-                        "Hora de beber água! 💧",
-                        "Não se esqueça de se hidratar. Beba um copo de água!"
-                );
 
                 break;
 
-            // =============================================
-            // ALARME DA CAMINHADA
-            // =============================================
-
+            // ---------------- CAMINHADA ----------------
             case AlarmScheduler.TIPO_CAMINHADA:
 
-                // Verifica se o lembrete de caminhada está ativado.
                 if (!LembretesPrefs.isCaminhadaAtiva(app)) {
                     break;
                 }
 
-                // Agenda novamente a próxima caminhada,
-                // respeitando o horário escolhido pelo usuário.
                 AlarmScheduler.agendarCaminhada(app);
 
-                // Verifica se as notificações estão permitidas.
                 if (!NotificationHelper.notificacoesPermitidas(app)) {
                     break;
                 }
 
-                // Exibe a notificação da caminhada.
                 NotificationHelper.mostrar(
                         app,
                         NotificationHelper.CANAL_CAMINHADA,
@@ -138,8 +117,6 @@ public class AlarmeReceiver extends BroadcastReceiver {
                 break;
 
             default:
-
-                // Não faz nada caso o tipo de alarme seja desconhecido.
                 break;
         }
     }
