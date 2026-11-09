@@ -60,35 +60,98 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
-                        android:text="0/8 copos"
+                        android:text="0.0/2.0 L"
                         android:textColor="#707977" />
                 </RelativeLayout>
+
+                <!-- FILEIRA DE COPOS CLICÁVEIS -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Selecione a quantidade (cada copo = 250ml):"
+                    android:layout_marginTop="16dp"
+                    android:textColor="#707977"
+                    android:textSize="14sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
+                    android:gravity="center"
                     android:layout_marginTop="12dp">
+
+                    <CheckBox
+                        android:id="@+id/cbCopo1"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:button="@null"
+                        android:background="@drawable/ic_copo"
+                        android:backgroundTint="@color/seletor_cor_copo" />
+
+                    <CheckBox
+                        android:id="@+id/cbCopo2"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginStart="10dp"
+                        android:button="@null"
+                        android:background="@drawable/ic_copo"
+                        android:backgroundTint="@color/seletor_cor_copo" />
+
+                    <CheckBox
+                        android:id="@+id/cbCopo3"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginStart="10dp"
+                        android:button="@null"
+                        android:background="@drawable/ic_copo"
+                        android:backgroundTint="@color/seletor_cor_copo" />
+
+                    <CheckBox
+                        android:id="@+id/cbCopo4"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginStart="10dp"
+                        android:button="@null"
+                        android:background="@drawable/ic_copo"
+                        android:backgroundTint="@color/seletor_cor_copo" />
+                    <CheckBox
+                        android:id="@+id/cbCopo5"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginStart="10dp"
+                        android:button="@null"
+                        android:background="@drawable/ic_copo"
+                        android:backgroundTint="@color/seletor_cor_copo" />
+                </LinearLayout>
+
+                <!-- Botões de Ação da Água -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="20dp">
 
                     <Button
                         android:id="@+id/btnRemoverAgua"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="- copo"
+                        android:text="Retirar"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
                     <Button
                         android:id="@+id/btnAdicionarAgua"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
-                        android:text="+ copo (250ml)"
+                        android:text="Adicionar"
                         android:backgroundTint="#005B41" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- 2. CARD DE CAMINHADA / LEITURA -->
+        <!-- 2. CARD DE CAMINHADA  -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -120,7 +183,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
-                        android:text="0/6000 passos"
+                        android:text="0.0/6.0 km"
                         android:textColor="#707977" />
                 </RelativeLayout>
 
@@ -128,22 +191,25 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
+                    android:gravity="center"
                     android:layout_marginTop="12dp">
 
                     <Button
                         android:id="@+id/btnRemoverWalk"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="- 500"
+                        android:text="- 0.5 km"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
                     <Button
                         android:id="@+id/btnAdicionarWalk"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
-                        android:text="+ 500 passos"
-                        android:backgroundTint="#005B41" />
+                        android:backgroundTint="#005B41"
+                        android:text="+ 0.5 km" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -184,25 +250,97 @@
                         android:textColor="#707977" />
                 </RelativeLayout>
 
+                <!-- NOVA ÁREA DOS RELÓGIOS DIGITAIS 00:00 -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginTop="12dp">
+                    android:layout_marginTop="24dp"
+                    android:weightSum="2">
+
+                    <!-- Relógio de Dormir -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Dormir"
+                            android:textColor="#707977"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tvHoraDormir"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="00:00"
+                            android:textSize="36sp"
+                            android:textStyle="bold"
+                            android:textColor="#005B41"
+                            android:layout_marginTop="4dp"
+                            android:padding="8dp"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"/>
+                    </LinearLayout>
+
+                    <!-- Relógio de Acordar -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Acordar"
+                            android:textColor="#707977"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/tvHoraAcordar"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="00:00"
+                            android:textSize="36sp"
+                            android:textStyle="bold"
+                            android:textColor="#005B41"
+                            android:layout_marginTop="4dp"
+                            android:padding="8dp"
+                            android:background="?attr/selectableItemBackground"
+                            android:clickable="true"
+                            android:focusable="true"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="20dp">
 
                     <Button
                         android:id="@+id/btnRemoverSleep"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:text="- 1h"
+                        android:text="Apagar"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
+                    <!-- O Botão "Registrar" agora é um botão de "Salvar" após preencher os relógios -->
                     <Button
-                        android:id="@+id/btnAdicionarSleep"
-                        android:layout_width="wrap_content"
+                        android:id="@+id/btnSalvarSono"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
-                        android:text="+ 1h sono"
+                        android:text="Salvar"
                         android:backgroundTint="#005B41" />
                 </LinearLayout>
             </LinearLayout>

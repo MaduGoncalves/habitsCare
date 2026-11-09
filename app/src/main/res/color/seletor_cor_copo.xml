@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Cor quando o copo está selecionado (Azul) -->
+    <item android:state_checked="true" android:color="#2196F3" />
+    <!-- Cor quando o copo NÃO está selecionado (Cinza Claro) -->
+    <item android:color="#CFD8DC" />
+</selector>

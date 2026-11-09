@@ -22,7 +22,8 @@ import java.util.Locale;
 
 public class HojeFragment extends Fragment {
 
-    private static final double COPO_L = 0.25;      // cada clique = 1 copo de 250 ml
+    // A variável fixa COPO_L foi removida para dar lugar à variável dinâmica
+    private double quantidadeLitrosSelecionada = 0.25; // Começa valendo 1 copo (250 ml = 0.25 L)
     private static final double INCREMENTO_KM = 0.5; // cada clique = 0,5 km
 
     private FragmentHojeBinding binding;
@@ -30,7 +31,6 @@ public class HojeFragment extends Fragment {
     private int idUsuarioLogado = -1;
     private String dataHoje;
 
-    // LiveData guardados para remover os observers antes de observar de novo
     private LiveData<Water> aguaLive;
     private LiveData<Walk> walkLive;
     private LiveData<Sleep> sleepLive;
@@ -49,13 +49,11 @@ public class HojeFragment extends Fragment {
         repository = new Repository(requireActivity().getApplication());
         dataHoje = calcularDataHoje();
 
-        // Usuário ativo logado
         repository.getUsuarioAtivo().observe(getViewLifecycleOwner(), user -> {
             if (user == null || binding == null) return;
 
             binding.tvSaudacao.setText("Olá, " + user.user_name + "! 👋");
 
-            // Só recarrega os hábitos se o usuário realmente mudou
             if (user.id != idUsuarioLogado) {
                 idUsuarioLogado = user.id;
                 carregarHabitosDoDia();
@@ -68,7 +66,6 @@ public class HojeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        // Se virou o dia com o app em segundo plano, recarrega
         String hoje = calcularDataHoje();
         if (dataHoje != null && !hoje.equals(dataHoje)) {
             dataHoje = hoje;
@@ -77,19 +74,17 @@ public class HojeFragment extends Fragment {
     }
 
     private String calcularDataHoje() {
-        // Locale.US garante dígitos 0-9 na chave de data usada no banco
         return new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
     }
 
     private void carregarHabitosDoDia() {
         if (idUsuarioLogado == -1 || binding == null) return;
 
-        // Remove observers antigos para não duplicar callbacks
         if (aguaLive != null) aguaLive.removeObservers(getViewLifecycleOwner());
         if (walkLive != null) walkLive.removeObservers(getViewLifecycleOwner());
         if (sleepLive != null) sleepLive.removeObservers(getViewLifecycleOwner());
 
-        // Água (litros)
+        // Água
         aguaLive = repository.getAguaDoDia(idUsuarioLogado, dataHoje);
         aguaLive.observe(getViewLifecycleOwner(), water -> {
             double litros = (water != null) ? water.getQuantidadeL() : 0.0;
@@ -99,7 +94,7 @@ public class HojeFragment extends Fragment {
             }
         });
 
-        // Caminhada (km)
+        // Caminhada
         walkLive = repository.getWalkDoDia(idUsuarioLogado, dataHoje);
         walkLive.observe(getViewLifecycleOwner(), walk -> {
             double km = (walk != null) ? walk.getKm() : 0.0;
@@ -109,30 +104,50 @@ public class HojeFragment extends Fragment {
             }
         });
 
-        // Sono (horário de dormir e acordar)
+        // Sono
+        // Sono
         sleepLive = repository.getSleepDoDia(idUsuarioLogado, dataHoje);
         sleepLive.observe(getViewLifecycleOwner(), sleep -> {
             if (binding == null) return;
             if (sleep == null || sleep.getHorarioDormir() == null || sleep.getHorarioAcordar() == null) {
                 binding.tvProgressoSleep.setText(String.format(Locale.getDefault(),
                         "0.0/%.1f hrs", Repository.META_HORAS_SONO));
+                // Zera os relógios
+                binding.tvHoraDormir.setText("00:00");
+                binding.tvHoraAcordar.setText("00:00");
             } else {
                 float horas = Repository.calcularHorasSono(sleep.getHorarioDormir(), sleep.getHorarioAcordar());
                 binding.tvProgressoSleep.setText(String.format(Locale.getDefault(),
-                        "%s → %s (%.1f/%.1f hrs)",
-                        sleep.getHorarioDormir(), sleep.getHorarioAcordar(),
-                        horas, Repository.META_HORAS_SONO));
+                        "%.1f/%.1f hrs", horas, Repository.META_HORAS_SONO));
+                // Atualiza os relógios com as horas salvas
+                binding.tvHoraDormir.setText(sleep.getHorarioDormir());
+                binding.tvHoraAcordar.setText(sleep.getHorarioAcordar());
             }
         });
     }
 
     private void configurarBotoes() {
-        // ÁGUA
+        // === NOVA LÓGICA DOS COPOS ===
+        // Configura o clique em cada ícone de copo
+        binding.cbCopo1.setOnClickListener(v -> selecionarCopos(1));
+        binding.cbCopo2.setOnClickListener(v -> selecionarCopos(2));
+        binding.cbCopo3.setOnClickListener(v -> selecionarCopos(3));
+        binding.cbCopo4.setOnClickListener(v -> selecionarCopos(4));
+        binding.cbCopo5.setOnClickListener(v -> selecionarCopos(5));
+
+        // Inicializa a tela com 1 copo selecionado por padrão
+        selecionarCopos(1);
+
+        // BOTÕES DE ADICIONAR E REMOVER ÁGUA USANDO A NOVA VARIÁVEL
         binding.btnAdicionarAgua.setOnClickListener(v -> {
-            if (idUsuarioLogado != -1) repository.alterarAgua(idUsuarioLogado, dataHoje, +COPO_L);
+            if (idUsuarioLogado != -1) {
+                repository.alterarAgua(idUsuarioLogado, dataHoje, +quantidadeLitrosSelecionada);
+            }
         });
         binding.btnRemoverAgua.setOnClickListener(v -> {
-            if (idUsuarioLogado != -1) repository.alterarAgua(idUsuarioLogado, dataHoje, -COPO_L);
+            if (idUsuarioLogado != -1) {
+                repository.alterarAgua(idUsuarioLogado, dataHoje, -quantidadeLitrosSelecionada);
+            }
         });
 
         // CAMINHADA
@@ -143,29 +158,49 @@ public class HojeFragment extends Fragment {
             if (idUsuarioLogado != -1) repository.alterarWalk(idUsuarioLogado, dataHoje, -INCREMENTO_KM);
         });
 
-        // SONO: "+" escolhe horário de dormir e acordar; "-" apaga o registro do dia
-        binding.btnAdicionarSleep.setOnClickListener(v -> {
-            if (idUsuarioLogado != -1) escolherHorariosSono();
+        // === SONO ===
+        // Ao clicar no texto "00:00" de Dormir
+        binding.tvHoraDormir.setOnClickListener(v -> {
+            new TimePickerDialog(requireContext(), (view, hora, minuto) -> {
+                binding.tvHoraDormir.setText(formatarHorario(hora, minuto));
+            }, 22, 0, true).show(); // Começa às 22:00 por padrão
         });
+
+        // Ao clicar no texto "00:00" de Acordar
+        binding.tvHoraAcordar.setOnClickListener(v -> {
+            new TimePickerDialog(requireContext(), (view, hora, minuto) -> {
+                binding.tvHoraAcordar.setText(formatarHorario(hora, minuto));
+            }, 7, 0, true).show(); // Começa às 07:00 por padrão
+        });
+
+        // Botão Salvar
+        binding.btnSalvarSono.setOnClickListener(v -> {
+            if (idUsuarioLogado != -1) {
+                String dormir = binding.tvHoraDormir.getText().toString();
+                String acordar = binding.tvHoraAcordar.getText().toString();
+                repository.salvarSono(idUsuarioLogado, dataHoje, dormir, acordar);
+            }
+        });
+
+        // Botão Apagar
         binding.btnRemoverSleep.setOnClickListener(v -> {
             if (idUsuarioLogado != -1) repository.limparSono(idUsuarioLogado, dataHoje);
         });
     }
 
-    private void escolherHorariosSono() {
-        final int usuario = idUsuarioLogado;
-        final String dia = dataHoje;
+    // Método que faz a mágica de acender/apagar os copos e calcular os litros
+    private void selecionarCopos(int quantidade) {
+        // Multiplica a quantidade de copos selecionados por 0.25L (250ml)
+        quantidadeLitrosSelecionada = quantidade * 0.25;
 
-        new TimePickerDialog(requireContext(), (view1, horaDormir, minDormir) -> {
-            final String dormir = formatarHorario(horaDormir, minDormir);
-
-            new TimePickerDialog(requireContext(), (view2, horaAcordar, minAcordar) -> {
-                String acordar = formatarHorario(horaAcordar, minAcordar);
-                repository.salvarSono(usuario, dia, dormir, acordar);
-            }, 7, 0, true).show();
-
-        }, 23, 0, true).show();
+        // Acende ou apaga os CheckBoxes dependendo de qual foi clicado
+        binding.cbCopo1.setChecked(quantidade >= 1);
+        binding.cbCopo2.setChecked(quantidade >= 2);
+        binding.cbCopo3.setChecked(quantidade >= 3);
+        binding.cbCopo4.setChecked(quantidade >= 4);
+        binding.cbCopo5.setChecked(quantidade >= 5);
     }
+
 
     private String formatarHorario(int hora, int minuto) {
         return String.format(Locale.US, "%02d:%02d", hora, minuto);
