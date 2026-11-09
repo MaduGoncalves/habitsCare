@@ -12,6 +12,9 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.habitscare.databinding.ActivityMainBinding;
+import android.content.res.Configuration;
+import androidx.appcompat.app.AppCompatDelegate;
+import android.view.MenuItem;
 
 /**
  * Tela única do app: mostra o Login quando não há usuário logado
@@ -52,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         configurarBarraInferior();
+        configurarToolbar();
 
         // Canais de notificação (Android 8+): criar é seguro mesmo se já existirem
         NotificationHelper.criarCanais(this);
@@ -183,6 +187,26 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
             return false;
+        });
+    }
+
+    private void configurarToolbar() {
+        // 1. Verifica qual tema está ativo ao abrir a tela
+        int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (currentNightMode == Configuration.UI_MODE_NIGHT_YES) {
+            binding.ivThemeToggle.setImageResource(R.drawable.sun); // Escuro = Sol
+        } else {
+            binding.ivThemeToggle.setImageResource(R.drawable.moon); // Claro = Lua
+        }
+
+        // 2. Ação de clique na imagem
+        binding.ivThemeToggle.setOnClickListener(v -> {
+            int mode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+            if (mode == Configuration.UI_MODE_NIGHT_YES) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO); // Muda pro claro
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES); // Muda pro escuro
+            }
         });
     }
 }

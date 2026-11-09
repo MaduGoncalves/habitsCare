@@ -6,12 +6,13 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#EAF5F2"
+    style="@style/background"
     tools:context=".MainActivity">
 
     <!-- Toolbar no topo -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
+        style="@style/BarraSuperior"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent">
@@ -20,9 +21,22 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            app:menu="@menu/top_menu_main"
             app:popupTheme="@style/SettingsPopUp">
 
-            <!-- Foto de perfil adicionada dentro da Toolbar -->
+            <ImageView
+                android:id="@+id/ivThemeToggle"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="start|center_vertical"
+                android:layout_marginStart="16dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="8dp"
+                android:src="@drawable/moon" />
+
+            <!-- Sua foto de perfil continua intacta no lado direito -->
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/ivFotoHeader"
                 android:layout_width="44dp"
@@ -54,16 +68,15 @@
     <!-- Barra de Navegação Inferior (Fixa na parte de baixo) -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
+        style="@style/MenuInferior"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:menu="@menu/bottom_menu_main"
         app:labelVisibilityMode="labeled"
         app:itemIconTint="@color/bottom_nav_colors"
-        app:itemTextColor="@color/bottom_nav_colors"
-        app:itemRippleColor="#1A005B41" />
+        app:itemTextColor="@color/bottom_nav_colors" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_app"
+    style="@style/background"
     android:orientation="vertical"
     android:paddingStart="24dp"
     android:paddingTop="12dp"
@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/app_name"
-            android:textColor="@color/brand_green_primary"
+            style="@style/titulos"
             android:textSize="26sp"
             android:textStyle="bold" />
 
@@ -43,7 +43,7 @@
             android:layout_marginTop="2dp"
             android:layout_marginBottom="28dp"
             android:text="@string/app_slogan"
-            android:textColor="@color/text_secondary"
+            style="@style/textos"
             android:textSize="12sp" />
 
         <!-- E-MAIL -->
@@ -51,7 +51,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/hint_email"
-            android:textColor="@color/brand_green_primary"
+            style="@style/titulos"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -96,7 +96,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/hint_senha"
-            android:textColor="@color/brand_green_primary"
+            style="@style/titulos"
             android:textSize="14sp"
             android:textStyle="bold" />
 
@@ -164,7 +164,7 @@
             style="@style/EstiloBotaoPadrao"
             android:layout_width="150dp"
             android:layout_height="38dp"
-            android:backgroundTint="@color/brand_green_dark"
+            android:backgroundTint="@color/brand_green_leaf"
             android:text="Criar Conta"
             android:textAllCaps="false"
             android:textColor="@color/white"
@@ -178,7 +178,7 @@
             android:layout_marginTop="16dp"
             android:padding="8dp"
             android:text="@string/btn_continue_without_login"
-            android:textColor="@color/brand_green_primary"
+            style="@style/titulos"
             android:textSize="12sp"
             android:textStyle="bold" />
 
@@ -190,7 +190,7 @@
         android:layout_height="wrap_content"
         android:gravity="start"
         android:text="@string/app_name"
-        android:textColor="@color/brand_green_primary"
+        style="@style/titulos"
         android:textSize="16sp" />
 
 </LinearLayout>

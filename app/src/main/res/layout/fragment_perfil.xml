@@ -5,7 +5,8 @@
     android:layout_height="match_parent"
     android:clipToPadding="false"
     android:fillViewport="true"
-    android:paddingBottom="24dp">
+    android:paddingBottom="24dp"
+    style="@style/background">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,17 +21,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:fontFamily="serif"
             android:text="Perfil"
-            android:textColor="@color/text_primary"
             android:textSize="26sp"
-            android:textStyle="bold" />
+            style="@style/titulos" />
 
         <!-- Card de informações do usuário -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/bg_card"
+            style="@style/cards"
             app:cardCornerRadius="28dp"
             app:cardElevation="2dp"
             app:strokeWidth="0dp">
@@ -74,10 +73,9 @@
                             android:layout_height="wrap_content"
                             android:ellipsize="end"
                             android:maxLines="1"
-                            android:textColor="@color/brand_green_dark"
                             android:textSize="22sp"
-                            android:textStyle="bold"
-                            tools:text="teste" />
+                            tools:text="teste"
+                            style="@style/titulos"/>
 
                         <TextView
                             android:id="@+id/tvEmailSubtitulo"
@@ -85,8 +83,8 @@
                             android:layout_height="wrap_content"
                             android:ellipsize="end"
                             android:maxLines="1"
-                            android:textColor="@color/text_secondary"
                             android:textSize="14sp"
+                            style="@style/textos"
                             tools:text="teste@gmail.com" />
 
                     </LinearLayout>
@@ -95,14 +93,13 @@
                 <!-- Botão para alterar foto -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnAlterarFoto"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    style="@style/BotaoTextoLembretes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:layout_marginBottom="12dp"
                     android:text="Alterar foto"
-                    android:textAllCaps="false"
-                    android:textColor="@color/brand_green_primary" />
+                    android:textAllCaps="false"/>
 
                 <!-- Campo Nome -->
                 <com.google.android.material.textfield.TextInputLayout
@@ -160,6 +157,8 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <!-- Campo Senha -->
+
+                <!-- Botão Salvar -->
                 <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/tilSenha"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -178,7 +177,7 @@
                     app:endIconTint="@color/text_secondary"
                     app:helperText="Deixe em branco para manter a senha atual"
                     app:helperTextEnabled="true"
-                    app:helperTextTextColor="@color/text_secondary"
+                    app:helperTextTextColor="@color/brand_green_dark"
                     app:hintTextColor="@color/brand_green_primary">
 
                     <com.google.android.material.textfield.TextInputEditText
@@ -192,7 +191,6 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Botão Salvar -->
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnSalvar"
                     android:layout_width="match_parent"
@@ -203,7 +201,7 @@
                     android:textAllCaps="false"
                     android:textColor="@color/white"
                     android:textSize="16sp"
-                    app:backgroundTint="@color/btn_salvar_bg"
+                    app:backgroundTint="@color/brand_green_dark"
                     app:cornerRadius="16dp" />
 
             </LinearLayout>
@@ -214,7 +212,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            app:cardBackgroundColor="@color/bg_card"
+            style="@style/cards"
             app:cardCornerRadius="28dp"
             app:cardElevation="2dp"
             app:strokeWidth="0dp">
@@ -230,89 +228,85 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Lembretes"
-                    android:textColor="@color/brand_green_dark"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    style="@style/titulos"
+                    android:textSize="20sp"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:text="Notificações para ajudar nos seus hábitos"
-                    android:textColor="@color/text_secondary"
+                    style="@style/textos"
                     android:textSize="14sp" />
 
                 <!-- Hora de dormir -->
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/swSono"
+                    style="@style/titulos"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:minHeight="48dp"
                     android:text="Hora de dormir"
-                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     app:useMaterialThemeColors="true" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnHoraSono"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    style="@style/BotaoTextoLembretes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:text="Horário: 22:00"
-                    android:textAllCaps="false"
-                    android:textColor="@color/brand_green_primary" />
+                    android:textAllCaps="false" />
 
                 <!-- Beber água -->
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/swAgua"
+                    style="@style/titulos"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:minHeight="48dp"
                     android:text="Beber água"
-                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     app:useMaterialThemeColors="true" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnIntervaloAgua"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    style="@style/BotaoTextoLembretes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:text="A cada 2 horas · das 8h às 22h"
-                    android:textAllCaps="false"
-                    android:textColor="@color/brand_green_primary" />
+                    android:textAllCaps="false" />
 
                 <!-- Hora de caminhar -->
                 <com.google.android.material.switchmaterial.SwitchMaterial
                     android:id="@+id/swCaminhada"
+                    style="@style/titulos"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:minHeight="48dp"
                     android:text="Hora de caminhar"
-                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     app:useMaterialThemeColors="true" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnHoraCaminhada"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    style="@style/BotaoTextoLembretes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:text="Horário: 20:00"
-                    android:textAllCaps="false"
-                    android:textColor="@color/brand_green_primary" />
+                    android:textAllCaps="false" />
 
                 <!-- Aviso de permissão de alarme exato -->
                 <TextView
                     android:id="@+id/tvAvisoLembretes"
+                    style="@style/titulos"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="Alarmes exatos não permitidos: os lembretes podem atrasar alguns minutos. Toque para permitir."
-                    android:textColor="@color/brand_green_primary"
                     android:textSize="13sp"
                     android:visibility="gone" />
 
@@ -322,16 +316,15 @@
         <!-- Botão Sair -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSair"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:backgroundTint="@color/danger"
             android:layout_width="match_parent"
             android:layout_height="56dp"
             android:layout_marginTop="16dp"
             android:text="Sair"
             android:textAllCaps="false"
-            android:textColor="@color/danger"
+            android:textColor="@color/white"
             android:textSize="16sp"
-            app:cornerRadius="16dp"
-            app:strokeColor="@color/danger" />
+            app:cornerRadius="16dp" />
 
     </LinearLayout>
 </ScrollView>

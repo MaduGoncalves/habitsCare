@@ -52,7 +52,7 @@ public class HojeFragment extends Fragment {
         repository.getUsuarioAtivo().observe(getViewLifecycleOwner(), user -> {
             if (user == null || binding == null) return;
 
-            binding.tvSaudacao.setText("Olá, " + user.user_name + "! 👋");
+            binding.tvSaudacao.setText("Olá, " + user.user_name + "!");
 
             if (user.id != idUsuarioLogado) {
                 idUsuarioLogado = user.id;

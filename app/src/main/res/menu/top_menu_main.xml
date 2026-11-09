@@ -2,19 +2,5 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-        android:id="@+id/action_profile"
-        android:title="Perfil"
-        app:showAsAction="ifRoom">
-        <!-- Submenu para as opções do usuário -->
-        <menu>
-            <item
-                android:id="@+id/action_edit_profile"
-                android:title="Editar Perfil" />
-            <item
-                android:id="@+id/action_logout"
-                android:title="Sair (Logout)" />
-        </menu>
 
-    </item>
 </menu>

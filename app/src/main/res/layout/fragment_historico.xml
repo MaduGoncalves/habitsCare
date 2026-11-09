@@ -11,9 +11,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:fontFamily="serif"
         android:text="Histórico"
-        android:textColor="@color/text_primary"
+        style="@style/titulos"
         android:textSize="26sp"
         android:textStyle="bold" />
 

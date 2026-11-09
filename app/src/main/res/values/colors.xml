@@ -10,11 +10,14 @@
     <color name="brand_green_dark">#004D40</color>
     <color name="brand_green_leaf">#81C784</color>
 
+    <color name="darker_green_menus">#002F29</color>
+
     <color name="text_primary">#424242</color>
     <color name="text_secondary">#757575</color>
     <color name="text_hint">#9E9E9E</color>
     <color name="white">#FFFFFF</color>
     <color name="bottom_nav_inactive">#707977</color>
+    <color name="light_grey">#C5C5C5</color>
 
     <!-- NOVAS: botão "Sair" (Perfil) e chips do Histórico -->
     <color name="danger">#C62828</color>
